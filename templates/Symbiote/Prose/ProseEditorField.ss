@@ -1,3 +1,8 @@
 <div $AttributesHTML>
-$Value.RAW
+    <div class="ProseEditorFieldEditor">
+    
+    </div>
+    <div class="ProseEditorFieldValue">
+    $Value.RAW
+    </div>
 </div>
