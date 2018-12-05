@@ -1,0 +1,11 @@
+@import './prose/editor.css';
+@import './prose/gapcursor.css';
+
+body {
+    font-family: sans-serif;
+}
+
+#app {
+    width: 800px;
+    margin: 50px auto;
+}
