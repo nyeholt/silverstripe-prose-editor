@@ -1,10 +1,11 @@
 
 import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { Schema, DOMParser } from "prosemirror-model"
+import { Schema, DOMParser, DOMSerializer } from "prosemirror-model"
 import { schema } from "prosemirror-schema-basic"
 import { addListNodes } from "prosemirror-schema-list"
 import { exampleSetup } from "prosemirror-example-setup"
+import { docToHtml } from "./proseutil/doc-to-html";
 
 
 // Mix the nodes from prosemirror-schema-list into the basic schema to
@@ -14,6 +15,8 @@ const mySchema = new Schema({
     marks: schema.spec.marks
 });
 
+const serializer = DOMSerializer.fromSchema(mySchema);
+
 const editors = [];
 
 const editorNodes = document.querySelectorAll('div.ProseEditorField');
@@ -21,16 +24,30 @@ const editorNodes = document.querySelectorAll('div.ProseEditorField');
 for (let i = 0; i < editorNodes.length; i++) {
     let node = editorNodes[i];
 
-    let editor = new EditorView(node.getElementsByClassName('ProseEditorFieldEditor')[0], {
-        state: EditorState.create({
-            doc: DOMParser.fromSchema(mySchema).parse(node.getElementsByClassName('ProseEditorFieldValue')[0]),
-            plugins: exampleSetup({
-                schema: mySchema,
-                menuBar: true,
-                history: true
-            })
-        })
-    });
+    let editor = function (node) {
+        const editorNode = node.getElementsByClassName('ProseEditorFieldEditor')[0];
+        const editorValue = node.getElementsByClassName('ProseEditorFieldValue')[0];
+        let editorStore = node.getElementsByClassName('ProseEditorFieldStorage')[0];
+
+        let editorView = new EditorView(editorNode, {
+            state: EditorState.create({
+                doc: DOMParser.fromSchema(mySchema).parse(editorValue),
+                plugins: exampleSetup({
+                    schema: mySchema,
+                    menuBar: true,
+                    history: true
+                })
+            }),
+            dispatchTransaction: function (tr) {
+                // console.log(this);
+                // console.log(tr);
+                this.updateState(this.state.apply(tr));
+                editorStore.value = docToHtml(serializer, this.state.doc);
+            }
+        });
+
+        return editorView;
+    }(node);
 
     editors.push(editor);
 }
