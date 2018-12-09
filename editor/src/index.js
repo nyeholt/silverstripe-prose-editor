@@ -4,7 +4,8 @@ import { EditorView } from "prosemirror-view"
 import { Schema, DOMParser, DOMSerializer } from "prosemirror-model"
 import { schema } from "prosemirror-schema-basic"
 import { addListNodes } from "prosemirror-schema-list"
-import { exampleSetup } from "prosemirror-example-setup"
+// import { exampleSetup } from "prosemirror-example-setup"
+import { setup } from "./setup"
 import { docToHtml } from "./proseutil/doc-to-html";
 
 
@@ -32,7 +33,7 @@ for (let i = 0; i < editorNodes.length; i++) {
         let editorView = new EditorView(editorNode, {
             state: EditorState.create({
                 doc: DOMParser.fromSchema(mySchema).parse(editorValue),
-                plugins: exampleSetup({
+                plugins: setup({
                     schema: mySchema,
                     menuBar: true,
                     history: true
