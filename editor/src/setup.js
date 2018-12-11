@@ -227,8 +227,13 @@ function insertLink(nodeType) {
                         required: true,
                         options: options
                     }),
+                    text: new TextField({
+                        label: "Text",
+                        required: false,
+                        value: attrs && attrs.text
+                    }),
                     title: new TextField({
-                        label: "Title",
+                        label: "Description",
                         required: false,
                         value: attrs && attrs.title
                     }),
@@ -246,11 +251,11 @@ function insertLink(nodeType) {
                 },
                 callback: function callback(attrs) {
                     const schema = view.state.schema;
-                    if (!attrs.title || attrs.title === '') {
+                    if (!attrs.text || attrs.text === '') {
                         const option = options.find(o => o.value === attrs.href);
-                        attrs.title = option ? option.label : 'Link';
+                        attrs.text = option ? option.label : 'Link';
                     }
-                    const node = schema.text(attrs.title, [schema.marks.link.create(attrs)])
+                    const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
                     view.dispatch(view.state.tr.replaceSelectionWith(node, false));
                     view.focus();
                 }
