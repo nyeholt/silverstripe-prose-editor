@@ -224,8 +224,13 @@ function insertLink(nodeType) {
                 fields: {
                     href: new SelectField({
                         label: "Select a Page",
-                        required: true,
+                        required: false,
                         options: options
+                    }),
+                    externalLink: new TextField({
+                        label: "External URL",
+                        required: false,
+                        value: attrs && attrs.href
                     }),
                     text: new TextField({
                         label: "Text",
@@ -254,6 +259,9 @@ function insertLink(nodeType) {
                     if (!attrs.text || attrs.text === '') {
                         const option = options.find(o => o.value === attrs.href);
                         attrs.text = option ? option.label : 'Link';
+                    }
+                    if (attrs.externalLink) {
+                        attrs.href = attrs.externalLink;
                     }
                     const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
                     view.dispatch(view.state.tr.replaceSelectionWith(node, false));
