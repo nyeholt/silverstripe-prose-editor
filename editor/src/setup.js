@@ -220,7 +220,7 @@ function insertLink(nodeType) {
                 attrs = state.selection.node.attrs;
             }
             openPrompt({
-                title: "Insert link",
+                title: "Insert page",
                 fields: {
                     href: new SelectField({
                         label: "Select a Page",
@@ -231,7 +231,18 @@ function insertLink(nodeType) {
                         label: "Title",
                         required: false,
                         value: attrs && attrs.title
-                    })
+                    }),
+                    target: new SelectField({
+                        label: "Open target",
+                        required: false,
+                        options: [
+                            { value: '', label: 'default' },
+                            { value: '_blank', label: '_blank' },
+                            { value: '_self', label: '_self' },
+                            { value: '_parent', label: '_parent' },
+                            { value: '_top', label: '_top' },
+                        ]
+                    }),
                 },
                 callback: function callback(attrs) {
                     const schema = view.state.schema;

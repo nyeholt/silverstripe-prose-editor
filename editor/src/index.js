@@ -13,7 +13,26 @@ import { docToHtml } from "./proseutil/doc-to-html";
 // create a schema with list support.
 const mySchema = new Schema({
     nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-    marks: schema.spec.marks
+    marks: Object.assign({}, JSON.parse(JSON.stringify(schema.spec.marks)), {
+        link: {
+            attrs: {
+                href: {},
+                title: { default: null },
+                target: { default: '_self' },
+            },
+            inclusive: false,
+            parseDOM: [{
+                tag: "a[href]", getAttrs(dom) {
+                    return {
+                        href: dom.getAttribute("href"),
+                        title: dom.getAttribute("title"),
+                        target: dom.getAttribute("target")
+                    }
+                }
+            }],
+            toDOM(node) { return ["a", node.attrs] }
+        }
+    })
 });
 
 const serializer = DOMSerializer.fromSchema(mySchema);
