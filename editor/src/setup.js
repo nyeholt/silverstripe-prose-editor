@@ -13,6 +13,7 @@ var prosemirrorSchemaList = require('prosemirror-schema-list');
 var prosemirrorInputrules = require('prosemirror-inputrules');
 
 var prefix = "ProseMirror-prompt";
+var mockupPages = require('./data/mockup-pages');
 
 function openPrompt(options) {
     var wrapper = document.body.appendChild(document.createElement("div"));
@@ -195,6 +196,58 @@ function canInsert(state, nodeType) {
     return false
 }
 
+function insertLink(nodeType) {
+    const pages = mockupPages.default;
+    let options = [{
+        label: 'Select a page'
+    }];
+    const hasPages = pages && pages.length > 0;
+    if (hasPages) {
+        for (let page of pages) {
+            options.push({
+                value: page.link,
+                label: page.title
+            });
+        };
+    }
+    return new prosemirrorMenu.MenuItem({
+        title: "Insert link",
+        label: "Page Link",
+        enable: function enable() { return hasPages },
+        run: function run(state, _, view) {
+            var attrs = null;
+            if (state.selection instanceof prosemirrorState.NodeSelection && state.selection.node.type == nodeType) {
+                attrs = state.selection.node.attrs;
+            }
+            openPrompt({
+                title: "Insert link",
+                fields: {
+                    href: new SelectField({
+                        label: "Select a Page",
+                        required: true,
+                        options: options
+                    }),
+                    title: new TextField({
+                        label: "Title",
+                        required: false,
+                        value: attrs && attrs.title
+                    })
+                },
+                callback: function callback(attrs) {
+                    const schema = view.state.schema;
+                    if (!attrs.title || attrs.title === '') {
+                        const option = options.find(o => o.value === attrs.href);
+                        attrs.title = option ? option.label : 'Link';
+                    }
+                    const node = schema.text(attrs.title, [schema.marks.link.create(attrs)])
+                    view.dispatch(view.state.tr.replaceSelectionWith(node, false));
+                    view.focus();
+                }
+            });
+        }
+    })
+}
+
 function insertImageItem(nodeType) {
     return new prosemirrorMenu.MenuItem({
         title: "Insert image",
@@ -351,7 +404,10 @@ function buildMenuItems(schema) {
     if (type = schema.marks.strong) { r.toggleStrong = markItem(type, { title: "Toggle strong style", icon: prosemirrorMenu.icons.strong }); }
     if (type = schema.marks.em) { r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: prosemirrorMenu.icons.em }); }
     if (type = schema.marks.code) { r.toggleCode = markItem(type, { title: "Toggle code font", icon: prosemirrorMenu.icons.code }); }
-    if (type = schema.marks.link) { r.toggleLink = linkItem(type); }
+    if (type = schema.marks.link) {
+        r.toggleLink = linkItem(type);
+        r.insertLink = insertLink(type);
+    }
 
     if (type = schema.nodes.image) { r.insertImage = insertImageItem(type); }
     if (type = schema.nodes.bullet_list) {
@@ -399,12 +455,20 @@ function buildMenuItems(schema) {
             title: "Insert horizontal rule",
             label: "Horizontal rule",
             enable: function enable(state) { return canInsert(state, hr) },
-            run: function run(state, dispatch) { dispatch(state.tr.replaceSelectionWith(hr.create())); }
+            run: function run(state, dispatch) {
+                dispatch(state.tr.replaceSelectionWith(hr.create()));
+            }
         });
     }
 
+    const insertDropdown = [
+        r.insertLink,
+        r.insertImage,
+        r.insertHorizontalRule
+    ]
+
     var cut = function (arr) { return arr.filter(function (x) { return x; }); };
-    r.insertMenu = new prosemirrorMenu.Dropdown(cut([r.insertImage, r.insertHorizontalRule]), { label: "Insert" });
+    r.insertMenu = new prosemirrorMenu.Dropdown(cut(insertDropdown), { label: "Insert" });
     r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
         r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
     ]), { label: "Heading" })]), { label: "Type..." });
