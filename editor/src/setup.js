@@ -11,9 +11,53 @@ var prosemirrorGapcursor = require('prosemirror-gapcursor');
 var prosemirrorMenu = require('prosemirror-menu');
 var prosemirrorSchemaList = require('prosemirror-schema-list');
 var prosemirrorInputrules = require('prosemirror-inputrules');
+var autoComplete = require('./vendor/auto-complete');
 
 var prefix = "ProseMirror-prompt";
 var mockupPages = require('./data/mockup-pages');
+
+function injectAutoComplete(name) {
+    const pages = mockupPages.default;
+    let options = [];
+    const hasPages = pages && pages.length > 0;
+    if (hasPages) {
+        for (let page of pages) {
+            options.push({
+                value: page.link,
+                label: page.title
+            });
+        };
+    }
+    const ac = new autoComplete({
+        selector: `input[name="${name}"]`,
+        minChars: 2,
+        source: function (term, suggest) {
+            term = term.toLowerCase();
+            var choices = options;
+            var matches = [];
+            for (let i = 0; i < choices.length; i++)
+                if (~choices[i].label.toLowerCase().indexOf(term)) matches.push(choices[i]);
+            suggest(matches);
+        },
+        renderItem: function (item) {
+            return `
+            <div class="autocomplete-suggestion" data-link="${item.value}" data-val="${item.label}">
+                <b>${item.label}</b>
+            </div>
+            `;
+        },
+        onSelect: function (e, term, item) {
+            e.preventDefault();
+            // TODO add the value
+            e.stopPropagation();
+            const acField = document.querySelector(`input[name="${name}"]`);
+            if (!acField) {
+                return;
+            }
+            acField.value = item.getAttribute('data-link');
+        }
+    });
+}
 
 function openPrompt(options) {
     var wrapper = document.body.appendChild(document.createElement("div"));
@@ -27,7 +71,16 @@ function openPrompt(options) {
     };
 
     var domFields = [];
-    for (var name in options.fields) { domFields.push(options.fields[name].render()); }
+    let addAutoComplete = false;
+    let autoCompleteField = '';
+    for (var name in options.fields) {
+        const field = options.fields[name];
+        if (field.options.autocomplete) {
+            addAutoComplete = true;
+            autoCompleteField = field.options.name;
+        }
+        domFields.push(field.render());
+    }
 
     var submitButton = document.createElement("button");
     submitButton.type = "submit";
@@ -54,6 +107,10 @@ function openPrompt(options) {
     wrapper.style.top = ((window.innerHeight - box.height) / 2) + "px";
     wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
 
+    if (addAutoComplete && autoCompleteField) {
+        injectAutoComplete(autoCompleteField);
+    }
+
     var submit = function () {
         var params = getValues(options.fields, domFields);
         if (params) {
@@ -68,12 +125,15 @@ function openPrompt(options) {
     });
 
     form.addEventListener("keydown", function (e) {
+        // ESC
         if (e.keyCode == 27) {
             e.preventDefault();
             close();
+            // Enter
         } else if (e.keyCode == 13 && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
             e.preventDefault();
             submit();
+            // Tab
         } else if (e.keyCode == 9) {
             window.setTimeout(function () {
                 if (!wrapper.contains(document.activeElement)) { close(); }
@@ -146,9 +206,10 @@ var TextField = (function (Field) {
     TextField.prototype.render = function render() {
         var input = document.createElement("input");
         input.type = "text";
+        input.name = this.options.name;
         input.placeholder = this.options.label;
         input.value = this.options.value || "";
-        input.autocomplete = "off";
+        input.autocomplete = this.options.autocomplete ? this.options.autocomplete : "off";
         return input
     };
 
@@ -197,23 +258,10 @@ function canInsert(state, nodeType) {
 }
 
 function insertLink(nodeType) {
-    const pages = mockupPages.default;
-    let options = [{
-        label: 'Select a page'
-    }];
-    const hasPages = pages && pages.length > 0;
-    if (hasPages) {
-        for (let page of pages) {
-            options.push({
-                value: page.link,
-                label: page.title
-            });
-        };
-    }
     return new prosemirrorMenu.MenuItem({
         title: "Insert link",
         label: "Page Link",
-        enable: function enable() { return hasPages },
+        // enable: function enable() { return hasPages },
         run: function run(state, _, view) {
             var attrs = null;
             if (state.selection instanceof prosemirrorState.NodeSelection && state.selection.node.type == nodeType) {
@@ -222,10 +270,12 @@ function insertLink(nodeType) {
             openPrompt({
                 title: "Insert page",
                 fields: {
-                    href: new SelectField({
-                        label: "Select a Page",
+                    pageLink: new TextField({
+                        name: "search-page",
+                        label: "Search page",
                         required: false,
-                        options: options
+                        autocomplete: true,
+                        value: attrs && attrs.href
                     }),
                     externalLink: new TextField({
                         label: "External URL",
@@ -256,13 +306,7 @@ function insertLink(nodeType) {
                 },
                 callback: function callback(attrs) {
                     const schema = view.state.schema;
-                    if (!attrs.text || attrs.text === '') {
-                        const option = options.find(o => o.value === attrs.href);
-                        attrs.text = option ? option.label : 'Link';
-                    }
-                    if (attrs.externalLink) {
-                        attrs.href = attrs.externalLink;
-                    }
+                    attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
                     const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
                     view.dispatch(view.state.tr.replaceSelectionWith(node, false));
                     view.focus();

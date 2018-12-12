@@ -1,18 +1,3 @@
-@import './prose/editor.css';
-@import './prose/gapcursor.css';
-@import './vendor/auto-complete.css';
-
-.ProseEditorField {
-    background-color: #fefefe;
-}
-
-.ProseMirror-prompt select {
-    background: #eee;
-    font-weight: 400;
-    font-size: 13.3333px;
-    padding: 0 3px;
-}
-
 .autocomplete-suggestions {
     text-align: left; cursor: default; border: 1px solid #ccc; border-top: 0; background: #fff; box-shadow: -1px 1px 3px rgba(0,0,0,.1);
 

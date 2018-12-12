@@ -15,9 +15,10 @@ class ProseEditorField extends FormField
         parent::__construct($name, $title, $value);
         // include TinyMCE Javascript
         Requirements::css('symbiote/silverstripe-prose-editor: editor/dist/main.css');
+        // Requirements::javascript('symbiote/silverstripe-prose-editor: editor/dist/vendor.js');
         Requirements::javascript('symbiote/silverstripe-prose-editor: editor/dist/main.js');
     }
-    
+
     /**
      * {@inheritdoc}
      */

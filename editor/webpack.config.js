@@ -10,8 +10,9 @@ module.exports = {
             `./style/index.scss`,
         ],
         // 3rd party libraries
-        // vendor: [
-        // ],
+        /* vendor: [
+            `./src/vendor/auto-complete.min.js`
+        ], */
     },
     module: {
         rules: [
