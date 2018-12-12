@@ -8,11 +8,7 @@ module.exports = {
         main: [
             `./src/index.js`,
             `./style/index.scss`,
-        ],
-        // 3rd party libraries
-        /* vendor: [
-            `./src/vendor/auto-complete.min.js`
-        ], */
+        ]
     },
     module: {
         rules: [
