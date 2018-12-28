@@ -17,7 +17,7 @@ class ProseEditorField extends FormField
         Requirements::css('symbiote/silverstripe-prose-editor: editor/dist/main.css');
         Requirements::javascript('symbiote/silverstripe-prose-editor: editor/dist/main.js');
     }
-    
+
     /**
      * {@inheritdoc}
      */

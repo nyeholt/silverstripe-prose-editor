@@ -11,8 +11,53 @@ var prosemirrorGapcursor = require('prosemirror-gapcursor');
 var prosemirrorMenu = require('prosemirror-menu');
 var prosemirrorSchemaList = require('prosemirror-schema-list');
 var prosemirrorInputrules = require('prosemirror-inputrules');
+var autoComplete = require('./vendor/auto-complete');
 
 var prefix = "ProseMirror-prompt";
+var mockupPages = require('./data/mockup-pages');
+
+function injectAutoComplete(name) {
+    const pages = mockupPages.default;
+    let options = [];
+    const hasPages = pages && pages.length > 0;
+    if (hasPages) {
+        for (let page of pages) {
+            options.push({
+                value: page.link,
+                label: page.title
+            });
+        };
+    }
+    const ac = new autoComplete({
+        selector: `input[name="${name}"]`,
+        minChars: 2,
+        source: function (term, suggest) {
+            term = term.toLowerCase();
+            var choices = options;
+            var matches = [];
+            for (let i = 0; i < choices.length; i++)
+                if (~choices[i].label.toLowerCase().indexOf(term)) matches.push(choices[i]);
+            suggest(matches);
+        },
+        renderItem: function (item) {
+            return `
+            <div class="autocomplete-suggestion" data-link="${item.value}" data-val="${item.label}">
+                <b>${item.label}</b>
+            </div>
+            `;
+        },
+        onSelect: function (e, term, item) {
+            e.preventDefault();
+            // TODO add the value
+            e.stopPropagation();
+            const acField = document.querySelector(`input[name="${name}"]`);
+            if (!acField) {
+                return;
+            }
+            acField.value = item.getAttribute('data-link');
+        }
+    });
+}
 
 function openPrompt(options) {
     var wrapper = document.body.appendChild(document.createElement("div"));
@@ -26,7 +71,16 @@ function openPrompt(options) {
     };
 
     var domFields = [];
-    for (var name in options.fields) { domFields.push(options.fields[name].render()); }
+    let addAutoComplete = false;
+    let autoCompleteField = '';
+    for (var name in options.fields) {
+        const field = options.fields[name];
+        if (field.options.autocomplete) {
+            addAutoComplete = true;
+            autoCompleteField = field.options.name;
+        }
+        domFields.push(field.render());
+    }
 
     var submitButton = document.createElement("button");
     submitButton.type = "submit";
@@ -53,6 +107,10 @@ function openPrompt(options) {
     wrapper.style.top = ((window.innerHeight - box.height) / 2) + "px";
     wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
 
+    if (addAutoComplete && autoCompleteField) {
+        injectAutoComplete(autoCompleteField);
+    }
+
     var submit = function () {
         var params = getValues(options.fields, domFields);
         if (params) {
@@ -67,12 +125,15 @@ function openPrompt(options) {
     });
 
     form.addEventListener("keydown", function (e) {
+        // ESC
         if (e.keyCode == 27) {
             e.preventDefault();
             close();
+            // Enter
         } else if (e.keyCode == 13 && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
             e.preventDefault();
             submit();
+            // Tab
         } else if (e.keyCode == 9) {
             window.setTimeout(function () {
                 if (!wrapper.contains(document.activeElement)) { close(); }
@@ -145,9 +206,10 @@ var TextField = (function (Field) {
     TextField.prototype.render = function render() {
         var input = document.createElement("input");
         input.type = "text";
+        input.name = this.options.name;
         input.placeholder = this.options.label;
         input.value = this.options.value || "";
-        input.autocomplete = "off";
+        input.autocomplete = this.options.autocomplete ? this.options.autocomplete : "off";
         return input
     };
 
@@ -193,6 +255,65 @@ function canInsert(state, nodeType) {
         if ($from.node(d).canReplaceWith(index, index, nodeType)) { return true }
     }
     return false
+}
+
+function insertLink(nodeType) {
+    return new prosemirrorMenu.MenuItem({
+        title: "Insert link",
+        label: "Page Link",
+        // enable: function enable() { return hasPages },
+        run: function run(state, _, view) {
+            var attrs = null;
+            if (state.selection instanceof prosemirrorState.NodeSelection && state.selection.node.type == nodeType) {
+                attrs = state.selection.node.attrs;
+            }
+            openPrompt({
+                title: "Insert page",
+                fields: {
+                    pageLink: new TextField({
+                        name: "search-page",
+                        label: "Search page",
+                        required: false,
+                        autocomplete: true,
+                        value: attrs && attrs.href
+                    }),
+                    externalLink: new TextField({
+                        label: "External URL",
+                        required: false,
+                        value: attrs && attrs.href
+                    }),
+                    text: new TextField({
+                        label: "Text",
+                        required: false,
+                        value: attrs && attrs.text
+                    }),
+                    title: new TextField({
+                        label: "Description",
+                        required: false,
+                        value: attrs && attrs.title
+                    }),
+                    target: new SelectField({
+                        label: "Open target",
+                        required: false,
+                        options: [
+                            { value: '', label: 'default' },
+                            { value: '_blank', label: '_blank' },
+                            { value: '_self', label: '_self' },
+                            { value: '_parent', label: '_parent' },
+                            { value: '_top', label: '_top' },
+                        ]
+                    }),
+                },
+                callback: function callback(attrs) {
+                    const schema = view.state.schema;
+                    attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
+                    const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
+                    view.dispatch(view.state.tr.replaceSelectionWith(node, false));
+                    view.focus();
+                }
+            });
+        }
+    })
 }
 
 function insertImageItem(nodeType) {
@@ -351,7 +472,10 @@ function buildMenuItems(schema) {
     if (type = schema.marks.strong) { r.toggleStrong = markItem(type, { title: "Toggle strong style", icon: prosemirrorMenu.icons.strong }); }
     if (type = schema.marks.em) { r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: prosemirrorMenu.icons.em }); }
     if (type = schema.marks.code) { r.toggleCode = markItem(type, { title: "Toggle code font", icon: prosemirrorMenu.icons.code }); }
-    if (type = schema.marks.link) { r.toggleLink = linkItem(type); }
+    if (type = schema.marks.link) {
+        r.toggleLink = linkItem(type);
+        r.insertLink = insertLink(type);
+    }
 
     if (type = schema.nodes.image) { r.insertImage = insertImageItem(type); }
     if (type = schema.nodes.bullet_list) {
@@ -399,12 +523,20 @@ function buildMenuItems(schema) {
             title: "Insert horizontal rule",
             label: "Horizontal rule",
             enable: function enable(state) { return canInsert(state, hr) },
-            run: function run(state, dispatch) { dispatch(state.tr.replaceSelectionWith(hr.create())); }
+            run: function run(state, dispatch) {
+                dispatch(state.tr.replaceSelectionWith(hr.create()));
+            }
         });
     }
 
+    const insertDropdown = [
+        r.insertLink,
+        r.insertImage,
+        r.insertHorizontalRule
+    ]
+
     var cut = function (arr) { return arr.filter(function (x) { return x; }); };
-    r.insertMenu = new prosemirrorMenu.Dropdown(cut([r.insertImage, r.insertHorizontalRule]), { label: "Insert" });
+    r.insertMenu = new prosemirrorMenu.Dropdown(cut(insertDropdown), { label: "Insert" });
     r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
         r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
     ]), { label: "Heading" })]), { label: "Type..." });

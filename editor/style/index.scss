@@ -1,6 +1,14 @@
 @import './prose/editor.css';
 @import './prose/gapcursor.css';
+@import './vendor/auto-complete.css';
 
 .ProseEditorField {
     background-color: #fefefe;
+}
+
+.ProseMirror-prompt select {
+    background: #eee;
+    font-weight: 400;
+    font-size: 13.3333px;
+    padding: 0 3px;
 }

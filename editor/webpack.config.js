@@ -8,10 +8,7 @@ module.exports = {
         main: [
             `./src/index.js`,
             `./style/index.scss`,
-        ],
-        // 3rd party libraries
-        // vendor: [
-        // ],
+        ]
     },
     module: {
         rules: [
