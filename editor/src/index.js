@@ -1,12 +1,11 @@
 
 import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { Schema, DOMParser, DOMSerializer } from "prosemirror-model"
+import { Schema } from "prosemirror-model"
 import { schema } from "prosemirror-schema-basic"
 import { addListNodes } from "prosemirror-schema-list"
-// import { exampleSetup } from "prosemirror-example-setup"
 import { setup } from "./setup"
-import { docToHtml } from "./proseutil/doc-to-html";
+import { setSchema, docToHtml, domToDoc } from "./proseutil/doc-utils";
 
 
 const schemaNodes = addListNodes(schema.spec.nodes, "paragraph block*", "block");
@@ -37,7 +36,7 @@ const mySchema = new Schema({
     marks: schemaMarks
 });
 
-const serializer = DOMSerializer.fromSchema(mySchema);
+setSchema(mySchema);
 
 const editors = [];
 
@@ -53,7 +52,7 @@ for (let i = 0; i < editorNodes.length; i++) {
 
         let editorView = new EditorView(editorNode, {
             state: EditorState.create({
-                doc: DOMParser.fromSchema(mySchema).parse(editorValue),
+                doc: domToDoc(editorValue),
                 plugins: setup({
                     schema: mySchema,
                     menuBar: true,
@@ -64,7 +63,7 @@ for (let i = 0; i < editorNodes.length; i++) {
                 // console.log(this);
                 // console.log(tr);
                 this.updateState(this.state.apply(tr));
-                editorStore.value = docToHtml(serializer, this.state.doc);
+                editorStore.value = docToHtml(this.state.doc);
             }
         });
 

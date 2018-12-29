@@ -35,6 +35,7 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
+    "jstree": "^3.3.7",
     "prosemirror-tables": "^0.7.10"
   }
 }
