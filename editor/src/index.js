@@ -1,42 +1,10 @@
 
 import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { Schema } from "prosemirror-model"
-import { schema } from "prosemirror-schema-basic"
-import { addListNodes } from "prosemirror-schema-list"
 import { setup } from "./setup"
-import { setSchema, docToHtml, domToDoc } from "./proseutil/doc-utils";
+import { docToHtml, domToDoc } from "./proseutil/doc-utils";
 
-
-const schemaNodes = addListNodes(schema.spec.nodes, "paragraph block*", "block");
-const schemaMarks = schema.spec.marks.append({
-    link: {
-        attrs: {
-            href: {},
-            title: { default: null },
-            target: { default: '_self' },
-        },
-        inclusive: false,
-        parseDOM: [{
-            tag: "a[href]", getAttrs(dom) {
-                return {
-                    href: dom.getAttribute("href"),
-                    title: dom.getAttribute("title"),
-                    target: dom.getAttribute("target")
-                }
-            }
-        }],
-        toDOM(node) { return ["a", node.attrs] }
-    }
-});
-// Mix the nodes from prosemirror-schema-list into the basic schema to
-// create a schema with list support.
-const mySchema = new Schema({
-    nodes: schemaNodes,
-    marks: schemaMarks
-});
-
-setSchema(mySchema);
+import schema from './schema';
 
 const editors = [];
 
@@ -54,7 +22,7 @@ for (let i = 0; i < editorNodes.length; i++) {
             state: EditorState.create({
                 doc: domToDoc(editorValue),
                 plugins: setup({
-                    schema: mySchema,
+                    schema: schema,
                     menuBar: true,
                     history: true
                 })

@@ -3,6 +3,12 @@
 import { openPrompt, TextField } from './proseutil/prose-prompt';
 import viewSource from './plugins/view-source';
 
+import {
+    addColumnBefore, addColumnAfter, deleteColumn, addRowBefore,
+    deleteRow, deleteTable, mergeCells, splitCell, toggleHeaderColumn, toggleHeaderRow, toggleHeaderCell, addRowAfter, columnResizing, tableEditing, goToNextCell
+} from 'prosemirror-tables';
+import { htmlToDoc } from './proseutil/doc-utils';
+
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
 var prosemirrorCommands = require('prosemirror-commands');
@@ -15,6 +21,11 @@ var prosemirrorInputrules = require('prosemirror-inputrules');
 var autoComplete = require('./vendor/auto-complete');
 
 var mockupPages = require('./data/mockup-pages');
+
+// table plugin support in FF
+document.execCommand("enableObjectResizing", false, "false")
+document.execCommand("enableInlineTableEditing", false, "false")
+
 
 function injectAutoComplete(name) {
     const pages = mockupPages.default;
@@ -344,15 +355,54 @@ export function buildMenuItems(schema) {
         });
     }
 
+    let tableMenu = [];
+
+    if (type = schema.nodes.table) {
+        function item(label, cmd) {
+            return new prosemirrorMenu.MenuItem({
+                title: label,
+                label,
+                // select: cmd,
+                run: cmd
+            });
+        }
+        tableMenu = [
+            item("Insert column before", addColumnBefore),
+            item("Insert column after", addColumnAfter),
+            item("Delete column", deleteColumn),
+            item("Insert row before", addRowBefore),
+            item("Insert row after", addRowAfter),
+            item("Delete row", deleteRow),
+            item("Delete table", deleteTable),
+            item("Merge cells", mergeCells),
+            item("Split cell", splitCell),
+            item("Toggle header column", toggleHeaderColumn),
+            item("Toggle header row", toggleHeaderRow),
+            item("Toggle header cells", toggleHeaderCell)
+        ]
+
+        r.insertTable = item("Table", function (state, _, view) {
+            const schema = view.state.schema;
+            // attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
+            const node = htmlToDoc('<table><tbody><tr><td></td><td></td></tr></tbody></table>')
+            view.dispatch(view.state.tr.replaceSelectionWith(node, false));
+            view.focus();
+        });
+
+    }
+
     r.viewSource = viewSource();
 
     const insertDropdown = [
+        r.insertTable,
         r.insertLink,
         r.insertImage,
         r.insertHorizontalRule
     ]
 
     var cut = function (arr) { return arr.filter(function (x) { return x; }); };
+
+    r.tableMenu = new prosemirrorMenu.Dropdown(cut(tableMenu), { label: "Table" });
     r.insertMenu = new prosemirrorMenu.Dropdown(cut(insertDropdown), { label: "Insert" });
     r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
         r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
@@ -360,10 +410,15 @@ export function buildMenuItems(schema) {
 
     r.inlineMenu = [cut([r.toggleStrong, r.toggleEm, r.toggleLink])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.viewSource])];
-    r.fullMenu = r.inlineMenu.concat([[r.insertMenu, r.typeMenu]], [[prosemirrorMenu.undoItem, prosemirrorMenu.redoItem]], r.blockMenu);
+    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.tableMenu, r.viewSource])];
 
-    return r
+    r.fullMenu = r.inlineMenu.concat(
+        [[r.insertMenu, r.typeMenu]],
+        [[prosemirrorMenu.undoItem, prosemirrorMenu.redoItem]],
+        r.blockMenu
+    );
+
+    return r;
 }
 
 var mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
@@ -548,12 +603,20 @@ export function setup(options) {
         prosemirrorKeymap.keymap(buildKeymap(options.schema, options.mapKeys)),
         prosemirrorKeymap.keymap(prosemirrorCommands.baseKeymap),
         prosemirrorDropcursor.dropCursor(),
-        prosemirrorGapcursor.gapCursor()
+        prosemirrorGapcursor.gapCursor(),
+        columnResizing(),
+        tableEditing(),
+        prosemirrorKeymap.keymap(
+            {
+                "Tab": goToNextCell(1),
+                "Shift-Tab": goToNextCell(-1)
+            }
+        )
     ];
     if (options.menuBar !== false) {
         plugins.push(prosemirrorMenu.menuBar({
             floating: options.floatingMenu !== false,
-            content: options.menuContent || buildMenuItems(options.schema).fullMenu
+            content: buildMenuItems(options.schema).fullMenu
         }));
     }
     if (options.history !== false) { plugins.push(prosemirrorHistory.history()); }
