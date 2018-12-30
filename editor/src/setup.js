@@ -1,6 +1,6 @@
 'use strict';
 
-import { openPrompt, TextField } from './proseutil/prose-prompt';
+import { openPrompt } from './proseutil/prose-prompt';
 import viewSource from './plugins/view-source';
 
 import {
@@ -8,6 +8,10 @@ import {
     deleteRow, deleteTable, mergeCells, splitCell, toggleHeaderColumn, toggleHeaderRow, toggleHeaderCell, addRowAfter, columnResizing, tableEditing, goToNextCell
 } from 'prosemirror-tables';
 import { htmlToDoc } from './proseutil/doc-utils';
+import { linkSelector } from './plugins/ss-link-selector';
+import { markItem, wrapListItem } from './proseutil/editor-utils';
+import { TextField } from './fields/TextField';
+import { SelectField } from './fields/SelectField';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -172,68 +176,6 @@ function insertImageItem(nodeType) {
     })
 }
 
-function cmdItem(cmd, options) {
-    var passedOptions = {
-        label: options.title,
-        run: cmd
-    };
-    for (var prop in options) { passedOptions[prop] = options[prop]; }
-    if ((!options.enable || options.enable === true) && !options.select) { passedOptions[options.enable ? "enable" : "select"] = function (state) { return cmd(state); }; }
-
-    return new prosemirrorMenu.MenuItem(passedOptions)
-}
-
-function markActive(state, type) {
-    var ref = state.selection;
-    var from = ref.from;
-    var $from = ref.$from;
-    var to = ref.to;
-    var empty = ref.empty;
-    if (empty) { return type.isInSet(state.storedMarks || $from.marks()) }
-    else { return state.doc.rangeHasMark(from, to, type) }
-}
-
-function markItem(markType, options) {
-    var passedOptions = {
-        active: function active(state) { return markActive(state, markType) },
-        enable: true
-    };
-    for (var prop in options) { passedOptions[prop] = options[prop]; }
-    return cmdItem(prosemirrorCommands.toggleMark(markType), passedOptions)
-}
-
-function linkItem(markType) {
-    return new prosemirrorMenu.MenuItem({
-        title: "Add or remove link",
-        icon: prosemirrorMenu.icons.link,
-        active: function active(state) { return markActive(state, markType) },
-        enable: function enable(state) { return !state.selection.empty },
-        run: function run(state, dispatch, view) {
-            if (markActive(state, markType)) {
-                prosemirrorCommands.toggleMark(markType)(state, dispatch);
-                return true
-            }
-            openPrompt({
-                title: "Create a link",
-                fields: {
-                    href: new TextField({
-                        label: "Link target",
-                        required: true
-                    }),
-                    title: new TextField({ label: "Title" })
-                },
-                callback: function callback(attrs) {
-                    prosemirrorCommands.toggleMark(markType, attrs)(view.state, view.dispatch);
-                    view.focus();
-                }
-            });
-        }
-    })
-}
-
-function wrapListItem(nodeType, options) {
-    return cmdItem(prosemirrorSchemaList.wrapInList(nodeType, options.attrs), options)
-}
 
 // :: (Schema) → Object
 // Given a schema, look for default mark and node types in it and
@@ -299,8 +241,7 @@ export function buildMenuItems(schema) {
     if (type = schema.marks.em) { r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: prosemirrorMenu.icons.em }); }
     // if (type = schema.marks.code) { r.toggleCode = markItem(type, { title: "Toggle code font", icon: prosemirrorMenu.icons.code }); }
     if (type = schema.marks.link) {
-        r.toggleLink = linkItem(type);
-        r.insertLink = insertLink(type);
+        r.toggleLink = linkSelector(type);
     }
 
     if (type = schema.nodes.image) { r.insertImage = insertImageItem(type); }
@@ -395,7 +336,6 @@ export function buildMenuItems(schema) {
 
     const insertDropdown = [
         r.insertTable,
-        r.insertLink,
         r.insertImage,
         r.insertHorizontalRule
     ]

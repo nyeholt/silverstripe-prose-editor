@@ -16,13 +16,31 @@ export function openPrompt(options) {
     var domFields = [];
     let addAutoComplete = false;
     let autoCompleteField = '';
+    let fieldNumber = 1;
     for (var name in options.fields) {
         const field = options.fields[name];
+
         if (field.options.autocomplete) {
             addAutoComplete = true;
             autoCompleteField = field.options.name;
         }
-        domFields.push(field.render());
+
+        let formField = field.render();
+        // wrap in a div with a form label
+        let formFieldId = prefix + '-field-' + fieldNumber;
+        formField.id = formFieldId;
+
+        let fieldWrapper = document.createElement("div");
+        fieldWrapper.className = prefix + '-fieldwrapper';
+        let fieldLabel = document.createElement("label");
+        fieldLabel.innerHTML = field.options.label;
+        fieldLabel.setAttribute('for', formFieldId);
+
+        fieldWrapper.appendChild(fieldLabel);
+        fieldWrapper.appendChild(formField);
+        domFields.push(fieldWrapper);
+
+        fieldNumber++;
     }
 
     var submitButton = document.createElement("button");
@@ -51,7 +69,7 @@ export function openPrompt(options) {
     wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
 
     if (addAutoComplete && autoCompleteField) {
-        injectAutoComplete(autoCompleteField);
+        // injectAutoComplete(autoCompleteField);
     }
 
     var submit = function () {
@@ -115,95 +133,3 @@ function reportInvalid(dom, message) {
     setTimeout(function () { return parent.removeChild(msg); }, 1500);
 }
 
-
-// ::- The type of field that `FieldPrompt` expects to be passed to it.
-var Field = function Field(options) { this.options = options; };
-
-// render:: (state: EditorState, props: Object) → dom.Node
-// Render the field to the DOM. Should be implemented by all subclasses.
-
-// :: (dom.Node) → any
-// Read the field's value from its DOM node.
-Field.prototype.read = function read(dom) { return dom.value };
-
-// :: (any) → ?string
-// A field-type-specific validation function.
-Field.prototype.validateType = function validateType(_value) { };
-
-Field.prototype.validate = function validate(value) {
-    if (!value && this.options.required) { return "Required field" }
-    return this.validateType(value) || (this.options.validate && this.options.validate(value))
-};
-
-Field.prototype.clean = function clean(value) {
-    return this.options.clean ? this.options.clean(value) : value
-};
-
-// ::- A field class for single-line text fields.
-export var TextField = (function (Field) {
-    function TextField() {
-        Field.apply(this, arguments);
-    }
-
-    if (Field) TextField.__proto__ = Field;
-    TextField.prototype = Object.create(Field && Field.prototype);
-    TextField.prototype.constructor = TextField;
-
-    TextField.prototype.render = function render() {
-        var input = document.createElement("input");
-        input.type = "text";
-        input.name = this.options.name;
-        input.placeholder = this.options.label;
-        input.value = this.options.value || "";
-        input.autocomplete = this.options.autocomplete ? this.options.autocomplete : "off";
-        return input
-    };
-
-    return TextField;
-}(Field));
-
-
-export class TextareaField extends Field
-{
-    constructor(options) {
-        super(options);
-    }
-
-    render() {
-        var input = document.createElement("textarea");
-        input.name = this.options.name;
-        input.rows = 10;
-        input.placeholder = this.options.label;
-        input.value = this.options.value || "";
-        return input
-    }
-}
-
-// ::- A field class for dropdown fields based on a plain `<select>`
-// tag. Expects an option `options`, which should be an array of
-// `{value: string, label: string}` objects, or a function taking a
-// `ProseMirror` instance and returning such an array.
-export var SelectField = (function (Field) {
-    function SelectField() {
-        Field.apply(this, arguments);
-    }
-
-    if (Field) SelectField.__proto__ = Field;
-    SelectField.prototype = Object.create(Field && Field.prototype);
-    SelectField.prototype.constructor = SelectField;
-
-    SelectField.prototype.render = function render() {
-        var this$1 = this;
-
-        var select = document.createElement("select");
-        this.options.options.forEach(function (o) {
-            var opt = select.appendChild(document.createElement("option"));
-            opt.value = o.value;
-            opt.selected = o.value == this$1.options.value;
-            opt.label = o.label;
-        });
-        return select
-    };
-
-    return SelectField;
-}(Field));

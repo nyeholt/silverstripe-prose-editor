@@ -1,0 +1,13 @@
+import { Field } from "./Field";
+
+export class TextField extends Field {
+    render() {
+        var input = document.createElement("input");
+        input.type = "text";
+        input.name = this.options.name ? this.options.name : this.options.label;
+        input.placeholder = this.options.placeholder ? this.options.placeholder : '...';
+        input.value = this.options.value || "";
+        input.autocomplete = this.options.autocomplete ? this.options.autocomplete : "off";
+        return input
+    }
+}

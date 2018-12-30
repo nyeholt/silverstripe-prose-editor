@@ -1,8 +1,8 @@
-import { openPrompt, TextareaField } from '../proseutil/prose-prompt';
+import { openPrompt } from '../proseutil/prose-prompt';
 import { docToHtml, htmlToDoc } from '../proseutil/doc-utils';
 
 import { AllSelection } from 'prosemirror-state';
-import { DOMParser } from "prosemirror-model"
+import { TextareaField } from '../fields/TextareaField';
 
 var prosemirrorMenu = require('prosemirror-menu');
 

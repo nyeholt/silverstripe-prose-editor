@@ -265,12 +265,21 @@
   }
 
   .ProseMirror-prompt input[type="text"],
-  .ProseMirror-prompt textarea {
+  .ProseMirror-prompt textarea,
+  .ProseMirror-prompt select {
     background: #eee;
     border: none;
     outline: none;
     width: 100%;
   }
+
+/*
+ {
+    background: #eee;
+    font-weight: 400;
+    font-size: 13.3333px;
+    padding: 0 3px;
+} */
 
   .ProseMirror-prompt input[type="text"] {
     padding: 0 4px;
@@ -374,10 +383,4 @@
 .autocomplete-suggestion.selected { background: #f0f0f0; }
 .ProseEditorField {
   background-color: #fefefe; }
-
-.ProseMirror-prompt select {
-  background: #eee;
-  font-weight: 400;
-  font-size: 13.3333px;
-  padding: 0 3px; }
 
