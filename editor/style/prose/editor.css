@@ -328,6 +328,11 @@
     margin-bottom: 23px;
   }
 
+  .ProseMirror-prompt-fieldwrapper .jstree {
+      max-height: 200px;
+      overflow-y: auto;
+  }
+
   .ProseMirror p:first-child,
   .ProseMirror h1:first-child,
   .ProseMirror h2:first-child,

@@ -16,7 +16,7 @@ export function openPrompt(options) {
     var domFields = [];
     let addAutoComplete = false;
     let autoCompleteField = '';
-    let fieldNumber = 1;
+
     for (var name in options.fields) {
         const field = options.fields[name];
 
@@ -26,21 +26,8 @@ export function openPrompt(options) {
         }
 
         let formField = field.render();
-        // wrap in a div with a form label
-        let formFieldId = prefix + '-field-' + fieldNumber;
-        formField.id = formFieldId;
-
-        let fieldWrapper = document.createElement("div");
-        fieldWrapper.className = prefix + '-fieldwrapper';
-        let fieldLabel = document.createElement("label");
-        fieldLabel.innerHTML = field.options.label;
-        fieldLabel.setAttribute('for', formFieldId);
-
-        fieldWrapper.appendChild(fieldLabel);
-        fieldWrapper.appendChild(formField);
-        domFields.push(fieldWrapper);
-
-        fieldNumber++;
+        formField.setAttribute('data-label', field.options.label);
+        domFields.push(formField);
     }
 
     var submitButton = document.createElement("button");
@@ -55,8 +42,25 @@ export function openPrompt(options) {
 
     var form = wrapper.appendChild(document.createElement("form"));
     if (options.title) { form.appendChild(document.createElement("h5")).textContent = options.title; }
+
+    let fieldNumber = 1;
     domFields.forEach(function (field) {
-        form.appendChild(document.createElement("div")).appendChild(field);
+        // wrap in a div with a form label
+        let formFieldId = prefix + '-field-' + fieldNumber;
+        field.id = formFieldId;
+
+        let fieldWrapper = document.createElement("div");
+        fieldWrapper.className = prefix + '-fieldwrapper';
+        let fieldLabel = document.createElement("label");
+        fieldLabel.innerHTML = field.getAttribute('data-label');
+        fieldLabel.setAttribute('for', formFieldId);
+
+        fieldWrapper.appendChild(fieldLabel);
+        fieldWrapper.appendChild(field);
+
+        form.appendChild(fieldWrapper);
+
+        fieldNumber++;
     });
     var buttons = form.appendChild(document.createElement("div"));
     buttons.className = prefix + "-buttons";

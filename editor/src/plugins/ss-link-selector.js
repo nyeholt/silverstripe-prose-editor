@@ -6,6 +6,7 @@ import { NodeSelection } from "prosemirror-state";
 import { toggleMark } from "prosemirror-commands";
 import { TextField } from "../fields/TextField";
 import { SelectField } from "../fields/SelectField";
+import { TreeField } from "../fields/TreeField";
 
 
 export function linkSelector(markType) {
@@ -13,9 +14,10 @@ export function linkSelector(markType) {
         title: "Add or remove link",
         icon: icons.link,
         active: function active(state) { return markActive(state, markType) },
-        enable: function enable(state) { return !state.selection.empty },
+        enable: function enable(state) { return markActive(state, markType) || !state.selection.empty },
         run: function run(state, dispatch, view) {
             let attrs = null;
+            console.log(state.selection);
             if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType) {
                 attrs = state.selection.node.attrs;
             }
@@ -23,7 +25,7 @@ export function linkSelector(markType) {
             openPrompt({
                 title: "Select link",
                 fields: {
-                    pageLink: new TextField({
+                    pageLink: new TreeField({
                         name: "search-page",
                         label: "Select a page",
                         required: false,
@@ -31,7 +33,7 @@ export function linkSelector(markType) {
                         value: attrs && attrs.href
                     }),
                     externalLink: new TextField({
-                        label: "External URL",
+                        label: "or External URL",
                         required: false,
                         value: attrs && attrs.href
                     }),
@@ -58,9 +60,10 @@ export function linkSelector(markType) {
                     }),
                 },
                 callback: function callback(attrs) {
+                    attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
+
                     toggleMark(markType, attrs)(view.state, view.dispatch);
                     // const schema = view.state.schema;
-                    attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
                     // const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
                     // view.dispatch(view.state.tr.replaceSelectionWith(node, false));
                     view.focus();
