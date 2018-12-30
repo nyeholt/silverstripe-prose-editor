@@ -384,7 +384,7 @@ export function buildMenuItems(schema) {
         r.insertTable = item("Table", function (state, _, view) {
             const schema = view.state.schema;
             // attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
-            const node = htmlToDoc('<table><tbody><tr><td></td><td></td></tr></tbody></table>')
+            const node = htmlToDoc('<table><tr><td></td><td></td></tr></table>')
             view.dispatch(view.state.tr.replaceSelectionWith(node, false));
             view.focus();
         });

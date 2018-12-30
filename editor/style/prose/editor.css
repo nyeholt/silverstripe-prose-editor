@@ -335,8 +335,4 @@
     outline: none;
   }
 
-  .ProseMirror table {
-      border: 1px solid #000;
-  }
-
   .ProseMirror p { margin-bottom: 1em }
