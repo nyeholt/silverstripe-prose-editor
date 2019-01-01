@@ -44,6 +44,14 @@ export function imageSelector(nodeType) {
                     }),
                     src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
                     title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
+                    width: new TextField({
+                        label: "Width",
+                        value: attrs && attrs.width
+                    }),
+                    height: new TextField({
+                        label: "Height",
+                        value: attrs && attrs.height
+                    }),
                     alt: new TextField({
                         label: "Description",
                         value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")

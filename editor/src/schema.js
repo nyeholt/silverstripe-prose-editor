@@ -26,6 +26,8 @@ schemaNodes = schemaNodes.append({
             src: {},
             alt: { default: null },
             title: { default: null },
+            width: {},
+            height: {},
             // support for silverstripe specific attrs
             'data-id': {},
             'data-shortcode': {},
@@ -38,6 +40,8 @@ schemaNodes = schemaNodes.append({
                     src: dom.getAttribute("src"),
                     title: dom.getAttribute("title"),
                     alt: dom.getAttribute("alt"),
+                    width: dom.getAttribute('width'),
+                    height: dom.getAttribute('height'),
                     'data-id': dom.getAttribute('data-id'),
                     'data-shortcode': dom.getAttribute('data-shortcode')
                 }

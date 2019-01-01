@@ -14,6 +14,7 @@ import { TextField } from './fields/TextField';
 import { SelectField } from './fields/SelectField';
 import { clearMarks } from './plugins/clear-marks';
 import { imageSelector } from './plugins/ss-image-selector';
+import { imagePaste } from './plugins/image-paste';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -510,6 +511,7 @@ export function setup(options) {
         prosemirrorKeymap.keymap(prosemirrorCommands.baseKeymap),
         prosemirrorDropcursor.dropCursor(),
         prosemirrorGapcursor.gapCursor(),
+        imagePaste,
         columnResizing(),
         tableEditing(),
         prosemirrorKeymap.keymap(
