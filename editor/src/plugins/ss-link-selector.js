@@ -7,7 +7,6 @@ import { TextField } from "../fields/TextField";
 import { SelectField } from "../fields/SelectField";
 import { TreeField } from "../fields/TreeField";
 
-
 export function linkSelector(markType) {
     return new MenuItem({
         title: "Add or remove link",

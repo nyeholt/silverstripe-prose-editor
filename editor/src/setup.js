@@ -12,6 +12,7 @@ import { linkSelector } from './plugins/ss-link-selector';
 import { markItem, wrapListItem } from './proseutil/editor-utils';
 import { TextField } from './fields/TextField';
 import { SelectField } from './fields/SelectField';
+import { clearMarks } from './plugins/clear-marks';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -240,6 +241,9 @@ export function buildMenuItems(schema) {
     if (type = schema.marks.strong) { r.toggleStrong = markItem(type, { title: "Toggle strong style", icon: prosemirrorMenu.icons.strong }); }
     if (type = schema.marks.em) { r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: prosemirrorMenu.icons.em }); }
     // if (type = schema.marks.code) { r.toggleCode = markItem(type, { title: "Toggle code font", icon: prosemirrorMenu.icons.code }); }
+
+    r.clearMarks = clearMarks();
+
     if (type = schema.marks.link) {
         r.toggleLink = linkSelector(type);
     }
@@ -348,7 +352,7 @@ export function buildMenuItems(schema) {
         r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
     ]), { label: "Heading" })]), { label: "Type..." });
 
-    r.inlineMenu = [cut([r.toggleStrong, r.toggleEm, r.toggleLink])];
+    r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
     prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.tableMenu, r.viewSource])];
 
