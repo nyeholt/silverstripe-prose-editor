@@ -37,3 +37,37 @@ export function markItem(markType, options) {
 export function wrapListItem(nodeType, options) {
     return cmdItem(wrapInList(nodeType, options.attrs), options)
 }
+
+/**
+ * Adapted from https://discuss.prosemirror.net/t/expanding-the-selection-to-the-active-mark/478/6
+ *
+ * @param {*} doc
+ * @param {*} pos
+ */
+export function positionAroundMark(doc, pos, markType) {
+    let $pos = doc.resolve(pos);
+
+    let start = $pos.parent.childAfter($pos.parentOffset);
+    if (!start.node) {
+        return;
+    }
+
+    let link = start.node.marks.find((mark) => mark.type === markType);
+    if (!link) {
+        return;
+    }
+
+    let startIndex = $pos.index();
+    let startPos = $pos.start() + start.offset;
+    while (startIndex > 0 && link.isInSet($pos.parent.child(startIndex - 1).marks)) {
+        startIndex -= 1;
+        startPos -= $pos.parent.child(startIndex).nodeSize;
+    }
+
+    // let endIndex = $pos.indexAfter();
+    let endPos = startPos + start.node.nodeSize;
+
+    return { from: startPos, to: endPos };
+}
+
+

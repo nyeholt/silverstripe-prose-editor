@@ -16,21 +16,19 @@ export class TreeField extends Field {
     read(dom) {
         if (this.hiddenField) {
             return this.options.type == 'file' ?
-                '[file_link id="' + this.hiddenField.value + '"]' :
-                '[sitetree_link id="' + this.hiddenField.value + '"]';
+                '[file_link,id=' + this.hiddenField.value + ']' :
+                '[sitetree_link,id=' + this.hiddenField.value + ']';
         }
         return 0;
     }
     render() {
 
-        console.log(this.options);
-
         let input = document.createElement('input');
         input.name = this.options.name ? this.options.name : this.options.label;
         input.type = "text";
-        input.value = this.options.value || "";
+        input.value = this.options.text || "";
 
-        this.hiddenField = document.createElement('input');
+        this.hiddenField = document.createElement('hidden');
         this.hiddenField.type = "text";
         this.hiddenField.value = this.options.value || "";
 
@@ -47,11 +45,13 @@ export class TreeField extends Field {
 
         this.tree = treeDiv;
 
+        const treeType = this.options.type == 'file' ? 'file' : 'page';
+
         $(treeDiv).jstree({
             core: {
                 data: {
                     url: function (node) {
-                        return 'frontend-authoring/tree/childnodes?id=' + node.id;
+                        return 'frontend-authoring/tree/childnodes/' + treeType + '?id=' + node.id;
                     }
                 }
             }

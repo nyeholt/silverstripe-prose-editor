@@ -25,8 +25,6 @@ function viewSource() {
                 callback: function callback(attrs) {
                     let newDoc = htmlToDoc(attrs.content);
 
-                    state.doc = newDoc;
-
                     view.dispatch(state.tr.setSelection(new AllSelection(state.doc)));
                     view.dispatch(view.state.tr.replaceSelectionWith(newDoc));
                     view.focus();
