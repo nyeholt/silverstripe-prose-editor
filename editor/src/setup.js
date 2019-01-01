@@ -9,10 +9,11 @@ import {
 } from 'prosemirror-tables';
 import { htmlToDoc } from './proseutil/doc-utils';
 import { linkSelector } from './plugins/ss-link-selector';
-import { markItem, wrapListItem } from './proseutil/editor-utils';
+import { markItem, wrapListItem, canInsert } from './proseutil/editor-utils';
 import { TextField } from './fields/TextField';
 import { SelectField } from './fields/SelectField';
 import { clearMarks } from './plugins/clear-marks';
+import { imageSelector } from './plugins/ss-image-selector';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -79,14 +80,6 @@ function injectAutoComplete(name) {
 
 // Helpers to create specific types of items
 
-function canInsert(state, nodeType) {
-    var $from = state.selection.$from;
-    for (var d = $from.depth; d >= 0; d--) {
-        var index = $from.index(d);
-        if ($from.node(d).canReplaceWith(index, index, nodeType)) { return true }
-    }
-    return false
-}
 
 function insertLink(nodeType) {
     return new prosemirrorMenu.MenuItem({
@@ -140,36 +133,6 @@ function insertLink(nodeType) {
                     attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
                     const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
                     view.dispatch(view.state.tr.replaceSelectionWith(node, false));
-                    view.focus();
-                }
-            });
-        }
-    })
-}
-
-function insertImageItem(nodeType) {
-    return new prosemirrorMenu.MenuItem({
-        title: "Insert image",
-        label: "Image",
-        enable: function enable(state) { return canInsert(state, nodeType) },
-        run: function run(state, _, view) {
-            var ref = state.selection;
-            var from = ref.from;
-            var to = ref.to;
-            var attrs = null;
-            if (state.selection instanceof prosemirrorState.NodeSelection && state.selection.node.type == nodeType) { attrs = state.selection.node.attrs; }
-            openPrompt({
-                title: "Insert image",
-                fields: {
-                    src: new TextField({ label: "Location", required: true, value: attrs && attrs.src }),
-                    title: new TextField({ label: "Title", value: attrs && attrs.title }),
-                    alt: new TextField({
-                        label: "Description",
-                        value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")
-                    })
-                },
-                callback: function callback(attrs) {
-                    view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
                     view.focus();
                 }
             });
@@ -248,7 +211,7 @@ export function buildMenuItems(schema) {
         r.toggleLink = linkSelector(type);
     }
 
-    if (type = schema.nodes.image) { r.insertImage = insertImageItem(type); }
+    if (type = schema.nodes.image) { r.insertImage = imageSelector(type); }
     if (type = schema.nodes.bullet_list) {
         r.wrapBulletList = wrapListItem(type, {
             title: "Wrap in bullet list",
@@ -340,7 +303,6 @@ export function buildMenuItems(schema) {
 
     const insertDropdown = [
         r.insertTable,
-        r.insertImage,
         r.insertHorizontalRule
     ]
 
@@ -352,7 +314,7 @@ export function buildMenuItems(schema) {
         r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
     ]), { label: "Heading" })]), { label: "Type..." });
 
-    r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink])];
+    r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
     prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.tableMenu, r.viewSource])];
 

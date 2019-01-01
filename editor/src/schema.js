@@ -19,7 +19,33 @@ let tNodes = tableNodes({
 });
 
 schemaNodes = schemaNodes.append(tNodes);
-
+schemaNodes = schemaNodes.append({
+    image: {
+        inline: true,
+        attrs: {
+            src: {},
+            alt: { default: null },
+            title: { default: null },
+            // support for silverstripe specific attrs
+            'data-id': {},
+            'data-shortcode': {},
+        },
+        group: "inline",
+        draggable: true,
+        parseDOM: [{
+            tag: "img[src]", getAttrs: function getAttrs(dom) {
+                return {
+                    src: dom.getAttribute("src"),
+                    title: dom.getAttribute("title"),
+                    alt: dom.getAttribute("alt"),
+                    'data-id': dom.getAttribute('data-id'),
+                    'data-shortcode': dom.getAttribute('data-shortcode')
+                }
+            }
+        }],
+        toDOM: function toDOM(node) { return ["img", node.attrs] }
+    }
+})
 // custom link insert thing.
 const schemaMarks = schema.spec.marks.append({
     link: {

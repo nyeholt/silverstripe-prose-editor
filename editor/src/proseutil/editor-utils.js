@@ -13,6 +13,15 @@ export function markActive(state, type) {
 }
 
 
+export function canInsert(state, nodeType) {
+    var $from = state.selection.$from;
+    for (var d = $from.depth; d >= 0; d--) {
+        var index = $from.index(d);
+        if ($from.node(d).canReplaceWith(index, index, nodeType)) { return true }
+    }
+    return false
+}
+
 export function cmdItem(cmd, options) {
     var passedOptions = {
         label: options.title,

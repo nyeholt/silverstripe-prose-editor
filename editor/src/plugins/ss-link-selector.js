@@ -9,7 +9,7 @@ import { TreeField } from "../fields/TreeField";
 
 export function linkSelector(markType) {
     return new MenuItem({
-        title: "Add or remove link",
+        title: "Add link",
         icon: icons.link,
         active: function active(state) { return markActive(state, markType) },
         enable: function enable(state) { return markActive(state, markType) || !state.selection.empty },
@@ -107,7 +107,13 @@ export function linkSelector(markType) {
                     }),
                 },
                 callback: function callback(attrs) {
-                    attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
+                    attrs.href = attrs.externalLink;
+                    if (attrs.href.length === 0) {
+                        const pageData = attrs.pageLink;
+                        if (pageData && pageData.id) {
+                            attrs.href = '[' + pageData.shortcode +',id=' + pageData.id + ']';
+                        }
+                    }
 
                     const from = view.state.selection.$anchor.pos;
                     const to = view.state.selection.$head.pos;
