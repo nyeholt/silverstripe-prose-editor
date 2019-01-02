@@ -9,6 +9,10 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Assets\File;
 use SilverStripe\Core\Manifest\ModuleResourceLoader;
 use SilverStripe\Assets\Image;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Assets\Upload;
+use SilverStripe\Security\SecurityToken;
+use SilverStripe\Core\Injector\Injector;
 
 
 /**
@@ -16,11 +20,12 @@ use SilverStripe\Assets\Image;
  *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  */
-class SimpleTreeController extends Controller
+class ProseController extends Controller
 {
 
     private static $allowed_actions = array(
         'childnodes',
+        'pastefile',
     );
 
     private static $type_map = [
@@ -48,7 +53,7 @@ class SimpleTreeController extends Controller
             return $this->performSearch($request->getVar('search'), $rootObjectType);
         }
 
-        $parentId = (int) $request->getVar('id');
+        $parentId = (int)$request->getVar('id');
         if (!$parentId || $parentId == '#') {
             $parentId = 0;
         }
@@ -101,7 +106,7 @@ class SimpleTreeController extends Controller
                     $nodeData['children'] = $haskids;
 
                     $nodeData['data'] = [
-                        'link' => $child instanceof File ? $child->getURL() :  $child->RelativeLink()
+                        'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
                     ];
 
                     // $nodeEntry = array(
@@ -157,6 +162,54 @@ class SimpleTreeController extends Controller
 
         return $result;
     }
+
+    public function pastefile(HTTPRequest $request)
+    {
+        if (!SecurityToken::inst()->checkRequest($request)) {
+            return $this->owner->httpError(403);
+        }
+        $raw = $request->postVar('rawData');
+        $filename = $request->postVar('filename') ?
+            $request->postVar('filename') . '.png' :
+            'upload.png';
+
+        $response = ['success' => true];
+        if (substr($raw, 0, strlen('data:image/png;base64,')) === 'data:image/png;base64,') {
+            $path = $request->postVar('path');
+            $parts = explode('/', $path);
+            if (count($parts) > 5) {
+                $path = 'Uploads';
+            }
+
+            $base64 = substr($raw, strlen('data:image/png;base64,'));
+            $tempFilePath = tempnam(TEMP_FOLDER, 'png');
+            file_put_contents($tempFilePath, base64_decode($base64));
+
+            $image = Image::create();
+
+            $tempFile = [
+                'error' => '',
+                'size' => strlen($raw),
+                'name' => $filename,
+                'tmp_name' => $tempFilePath
+            ];
+            $upload = Upload::create();
+            $upload->setValidator(Injector::inst()->create(ContentUploadValidator::class));
+            $upload->loadIntoFile($tempFile, $image, $path);
+
+            $file = $upload->getFile();
+            if ($file && $file->ID) {
+                $response['url'] = $file->getURL();
+                $response['name'] = $file->Title;
+            }
+            if (file_exists($tempFilePath)) {
+                @unlink($tempFile);
+            }
+        }
+        $this->owner->getResponse()->addHeader('Content-Type', 'application/json');
+        return json_encode($response, JSON_PRETTY_PRINT);
+    }
+
 
     /**
      * Search for a node based on the passed in criteria. The output is a list
