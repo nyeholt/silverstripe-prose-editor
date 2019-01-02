@@ -95,7 +95,7 @@ class SimpleTreeController extends Controller
                         $nodeData['icon'] = $thumbs['x32'];
                     } else if (!$haskids) {
                         // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
-                        $nodeData['icon'] = 'resources/symbiote/silverstripe-frontend-authoring/client/images/page.png';
+                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
                     }
 
                     $nodeData['children'] = $haskids;
