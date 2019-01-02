@@ -351,6 +351,14 @@
 
   .ProseMirror p { margin-bottom: 1em }
 
+  .ProseMirror placeholder.ProseMirror-widget {
+      border-radius: 3px;
+      background-color: #ececec;
+      border: 1px solid #444;
+      width: 100px;
+      height: 60px;
+  }
+
 .ProseMirror-gapcursor {
   display: none;
   pointer-events: none;
