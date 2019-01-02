@@ -1,6 +1,9 @@
 import { MenuItem } from "prosemirror-menu";
 import { toggleMark } from "prosemirror-commands";
 import { wrapInList } from "prosemirror-schema-list";
+import { InputRule } from "prosemirror-inputrules";
+import { findWrapping } from "prosemirror-transform";
+import { Selection, TextSelection } from "prosemirror-state";
 
 export function markActive(state, type) {
     var ref = state.selection;
@@ -45,6 +48,26 @@ export function markItem(markType, options) {
 
 export function wrapListItem(nodeType, options) {
     return cmdItem(wrapInList(nodeType, options.attrs), options)
+}
+
+export function markWrappingInputRule(regexp, markType, getAttrs) {
+    return new InputRule(regexp, function (state, match, start, end) {
+        var attrs = getAttrs instanceof Function ? getAttrs(match) : null;
+        var tr = state.tr;
+
+        tr = tr.setSelection(TextSelection.create(tr.doc, start, end));
+        var replacementText = match.length > 1 ? match[1] : match[0];
+        tr = tr.insertText(replacementText + ' ');
+
+        tr = tr.addMark(start, start + replacementText.length, markType.create(attrs));
+
+        const $pos = tr.doc.resolve(start + replacementText.length + 1);
+        if ($pos) {
+            tr = tr.setSelection(Selection.near($pos));
+        }
+        // tr = tr.replaceSel
+        return tr;
+    })
 }
 
 /**

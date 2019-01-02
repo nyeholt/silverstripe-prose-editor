@@ -52,6 +52,10 @@ schemaNodes = schemaNodes.append({
 })
 // custom link insert thing.
 const schemaMarks = schema.spec.marks.append({
+    strike: {
+        parseDOM: [{ tag: "s" }, { tag: "strike" }],
+        toDOM: function toDOM() { return ["s"] }
+    },
     link: {
         attrs: {
             href: {},

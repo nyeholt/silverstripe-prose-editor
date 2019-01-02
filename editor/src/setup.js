@@ -9,7 +9,7 @@ import {
 } from 'prosemirror-tables';
 import { htmlToDoc } from './proseutil/doc-utils';
 import { linkSelector } from './plugins/ss-link-selector';
-import { markItem, wrapListItem, canInsert } from './proseutil/editor-utils';
+import { markItem, wrapListItem, canInsert, markWrappingInputRule } from './proseutil/editor-utils';
 import { TextField } from './fields/TextField';
 import { SelectField } from './fields/SelectField';
 import { clearMarks } from './plugins/clear-marks';
@@ -459,12 +459,25 @@ function headingRule(nodeType, maxLevel) {
 // A set of input rules for creating the basic block quotes, lists,
 // code blocks, and heading.
 export function buildInputRules(schema) {
-    var rules = prosemirrorInputrules.smartQuotes.concat(prosemirrorInputrules.ellipsis, prosemirrorInputrules.emDash), type;
+    var rules = [prosemirrorInputrules.ellipsis, prosemirrorInputrules.emDash], type; // prosemirrorInputrules.smartQuotes.concat(prosemirrorInputrules.ellipsis, prosemirrorInputrules.emDash), type;
     if (type = schema.nodes.blockquote) { rules.push(blockQuoteRule(type)); }
     if (type = schema.nodes.ordered_list) { rules.push(orderedListRule(type)); }
     if (type = schema.nodes.bullet_list) { rules.push(bulletListRule(type)); }
     if (type = schema.nodes.code_block) { rules.push(codeBlockRule(type)); }
     if (type = schema.nodes.heading) { rules.push(headingRule(type, 6)); }
+
+    if (type = schema.marks.code) {
+        rules.push(markWrappingInputRule(/`([^`\\]+)` /, type));
+    }
+    if (type = schema.marks.strike) {
+        rules.push(markWrappingInputRule(/~([^~\\]+)~ /, type));
+    }
+    if (type = schema.marks.em) {
+        rules.push(markWrappingInputRule(/_([^_\\]+)_ /, type));
+    }
+    if (type = schema.marks.strong) {
+        rules.push(markWrappingInputRule(/\*\*([^\*\\]+)\*\* /, type));
+    }
     return prosemirrorInputrules.inputRules({ rules: rules })
 }
 
