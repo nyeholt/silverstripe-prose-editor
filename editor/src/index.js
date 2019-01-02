@@ -31,7 +31,13 @@ for (let i = 0; i < editorNodes.length; i++) {
                 // console.log(this);
                 // console.log(tr);
                 this.updateState(this.state.apply(tr));
-                editorStore.value = docToHtml(this.state.doc);
+                const newValue = docToHtml(this.state.doc);
+                if (newValue != editorStore.value) {
+                    editorStore.value = newValue;
+                    var event = document.createEvent('Event');
+                    event.initEvent('change', true, true); //can bubble, and is cancellable
+                    editorStore.dispatchEvent(event);
+                }
             }
         });
 
