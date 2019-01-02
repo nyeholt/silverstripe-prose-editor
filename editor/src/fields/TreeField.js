@@ -12,7 +12,7 @@ export class TreeField extends Field {
             this.options.type = 'page';
         }
         if (!this.options.url) {
-            this.options.url = '__tree';
+            this.options.url = '__prose';
         }
     }
 

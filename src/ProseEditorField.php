@@ -22,6 +22,8 @@ class ProseEditorField extends FormField
         'file' => File::class,
     ];
 
+    protected $uploadPath = 'Uploads';
+
     protected $schemaDataType = FormField::SCHEMA_DATA_TYPE_TEXT;
 
     public function __construct($name, $title = null, $value = null)
@@ -30,6 +32,17 @@ class ProseEditorField extends FormField
         // include TinyMCE Javascript
         Requirements::css('symbiote/silverstripe-prose-editor: editor/dist/main.css');
         Requirements::javascript('symbiote/silverstripe-prose-editor: editor/dist/main.js');
+    }
+
+    public function setUploadPath($v)
+    {
+        $this->uploadPath = $v;
+        return $this;
+    }
+
+    public function getUploadPath()
+    {
+        return $this->uploadPath;
     }
 
     /**
@@ -41,7 +54,8 @@ class ProseEditorField extends FormField
             parent::getAttributes(),
             array(
                 'class' => 'ProseEditorField',
-                'data-tree-url' => '__tree',
+                'data-prose-url' => '__prose',
+                'data-upload-path' => $this->uploadPath,
                 'value' => null,
                 'type' => null,
             )

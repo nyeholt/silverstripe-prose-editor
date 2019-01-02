@@ -3,4 +3,4 @@ Name: prose_routes
 ---
 SilverStripe\Control\Director:
   rules:
-    __tree: Symbiote\Prose\SimpleTreeController
+    __prose: Symbiote\Prose\ProseController

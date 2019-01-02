@@ -1,8 +1,8 @@
 import { Plugin } from "prosemirror-state";
+import wretch from 'wretch';
 
 const IMAGE_TYPE = /image.*/
-const UPLOAD_ENDPOINT = '';
-const MAX_PASTE_SIZE = 500000;
+const MAX_PASTE_SIZE = 1500000;
 let PASTING = false;
 
 
@@ -18,6 +18,10 @@ export const imagePaste = new Plugin({
 
                 for (var i = 0; i < clipboardData.types.length; i++) {
                     if (clipboardData.types[i].match(IMAGE_TYPE) || clipboardData.items[i].type.match(IMAGE_TYPE)) {
+                        const editorParent = findFieldNode(view.dom);
+                        if (!editorParent) {
+                            return;
+                        }
                         // by simply returning true, we let the image get pasted as base64 data: urls.
                         var file = clipboardData.items[i].getAsFile();
                         if (!file) {
@@ -32,7 +36,6 @@ export const imagePaste = new Plugin({
 
                         reader.onload = function (evt) {
                             if (evt.target.result && evt.target.result.length > 0 && evt.target.result.length < MAX_PASTE_SIZE) {
-
                                 // declared here, otherwise the paste action can change the focused element before the post responds
                                 PASTING = true;
 
@@ -49,14 +52,25 @@ export const imagePaste = new Plugin({
                                     }
                                 }
 
-                                // $.post(UPLOAD_ENDPOINT, {SecurityID: secId, rawData: evt.target.result}).then(function (res) {
-                                //     PASTING = false;
-                                //     if (res && res.success) {
-                                //         updateModel.setContent(updateDirective, {url: res.url});
-                                //     }
-                                // }).done(function (done) {
-                                //     PASTING = false;
-                                // })
+                                const secId = document.querySelector('input[name=SecurityID]').value;
+                                const uploadPath = editorParent.getAttribute('data-upload-path');
+                                const uploadEndpoint = editorParent.getAttribute('data-prose-url') + '/pastefile';
+
+                                const w = wretch();
+                                w.url(uploadEndpoint).formData({
+                                    'ajax': 1,
+                                    SecurityID: secId,
+                                    rawData: evt.target.result,
+                                    path: uploadPath
+                                }).post().json(function (response) {
+                                    if (response && response.url) {
+
+                                    }
+                                    PASTING = false;
+                                }).catch(function (d) {
+                                    console.error(error);
+                                    alert("Upload failed");
+                                });
                             }
                         };
                         reader.readAsDataURL(file);
@@ -66,3 +80,14 @@ export const imagePaste = new Plugin({
         }
     }
 });
+
+
+function findFieldNode(node) {
+    if (!node) {
+        return;
+    }
+    if (node.getAttribute('data-prose-url')) {
+        return node;
+    }
+    return findFieldNode(node.parentElement);
+}
