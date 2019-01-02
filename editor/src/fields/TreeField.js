@@ -11,6 +11,9 @@ export class TreeField extends Field {
         if (!this.options.type) {
             this.options.type = 'page';
         }
+        if (!this.options.url) {
+            this.options.url = '__tree';
+        }
     }
 
     read(dom) {
@@ -54,13 +57,14 @@ export class TreeField extends Field {
 
         this.tree = treeDiv;
 
+        const treeUrlBase = this.options.url;
         const treeType = this.options.type == 'file' ? 'file' : 'page';
 
         $(treeDiv).jstree({
             core: {
                 data: {
                     url: function (node) {
-                        return 'frontend-authoring/tree/childnodes/' + treeType + '?id=' + node.id;
+                        return treeUrlBase + '/childnodes/' + treeType + '?id=' + node.id;
                     }
                 }
             }
