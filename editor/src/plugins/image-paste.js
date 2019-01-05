@@ -1,6 +1,7 @@
 import { Plugin } from "prosemirror-state";
 import wretch from 'wretch';
 import { DecorationSet, Decoration } from "prosemirror-view";
+import { findEditorFieldNode } from "../proseutil/editor-utils";
 
 const IMAGE_TYPE = /image.*/
 const MAX_PASTE_SIZE = 1500000;
@@ -42,7 +43,7 @@ export const imagePaste = new Plugin({
 
                 for (var i = 0; i < clipboardData.types.length; i++) {
                     if (clipboardData.types[i].match(IMAGE_TYPE) || clipboardData.items[i].type.match(IMAGE_TYPE)) {
-                        const editorParent = findFieldNode(view.dom);
+                        const editorParent = findEditorFieldNode(view.dom);
                         if (!editorParent) {
                             return;
                         }
@@ -120,13 +121,3 @@ function findPlaceholder(state, id) {
 }
 
 
-
-function findFieldNode(node) {
-    if (!node) {
-        return;
-    }
-    if (node.getAttribute('data-prose-url')) {
-        return node;
-    }
-    return findFieldNode(node.parentElement);
-}

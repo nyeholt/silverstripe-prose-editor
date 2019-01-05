@@ -7,14 +7,19 @@ import {
     addColumnBefore, addColumnAfter, deleteColumn, addRowBefore,
     deleteRow, deleteTable, mergeCells, splitCell, toggleHeaderColumn, toggleHeaderRow, toggleHeaderCell, addRowAfter, columnResizing, tableEditing, goToNextCell
 } from 'prosemirror-tables';
-import { htmlToDoc } from './proseutil/doc-utils';
+import { htmlToDoc, domToDoc, docToHtml } from './proseutil/doc-utils';
 import { linkSelector } from './plugins/ss-link-selector';
-import { markItem, wrapListItem, canInsert, markWrappingInputRule } from './proseutil/editor-utils';
+import { markItem, wrapListItem, canInsert, markWrappingInputRule, cmdItem } from './proseutil/editor-utils';
 import { TextField } from './fields/TextField';
 import { SelectField } from './fields/SelectField';
 import { clearMarks } from './plugins/clear-marks';
 import { imageSelector } from './plugins/ss-image-selector';
 import { imagePaste } from './plugins/image-paste';
+import { insertShortcode, ShortcodeNodeView } from './plugins/shortcodes';
+import { EditorView } from 'prosemirror-view';
+import { EditorState } from 'prosemirror-state';
+
+import schema from './schema';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -297,30 +302,50 @@ export function buildMenuItems(schema) {
             view.dispatch(view.state.tr.replaceSelectionWith(node, false));
             view.focus();
         });
+    }
 
+    if (type = schema.nodes.inline_shortcode) {
+        r.insertInlineShortcode = cmdItem(insertShortcode('show_field', schema.nodes.inline_shortcode), {
+            title: "Page field",
+            label: "Page field"
+        });
+
+        r.insertBlockShortcode = cmdItem(insertShortcode('block_placeholder', schema.nodes.block_shortcode), {
+            title: "Block shortcode",
+            label: "Block Shortcode"
+        });
     }
 
     r.viewSource = viewSource();
 
+    const shortcodeDropdown = [
+        r.insertInlineShortcode,
+        r.insertBlockShortcode
+    ];
+
     const insertDropdown = [
         r.insertTable,
-        r.insertHorizontalRule
+        r.insertHorizontalRule,
     ]
+
 
     var cut = function (arr) { return arr.filter(function (x) { return x; }); };
 
     r.tableMenu = new prosemirrorMenu.Dropdown(cut(tableMenu), { label: "Table" });
     r.insertMenu = new prosemirrorMenu.Dropdown(cut(insertDropdown), { label: "Insert" });
+    r.shortcodeMenu = new prosemirrorMenu.Dropdown(cut(shortcodeDropdown), { label: "Shortcodes" });
+
     r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
         r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
     ]), { label: "Heading" })]), { label: "Type..." });
 
     r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.tableMenu, r.viewSource])];
+    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, /* r.shortcodeMenu,*/ r.tableMenu, r.viewSource])];
 
     r.fullMenu = r.inlineMenu.concat(
         [[r.insertMenu, r.typeMenu]],
+
         [[prosemirrorMenu.undoItem, prosemirrorMenu.redoItem]],
         r.blockMenu
     );
@@ -517,7 +542,7 @@ export function buildInputRules(schema) {
 //
 //     menuContent:: [[MenuItem]]
 //     Can be used to override the menu content.
-export function setup(options) {
+function setupPlugins(options) {
     var plugins = [
         buildInputRules(options.schema),
         prosemirrorKeymap.keymap(buildKeymap(options.schema, options.mapKeys)),
@@ -549,4 +574,37 @@ export function setup(options) {
     }))
 }
 
+export function setupEditor(editorNode, valueNode, storageNode) {
+    let editorView = new EditorView(editorNode, {
+        state: EditorState.create({
+            doc: domToDoc(valueNode),
+            plugins: setupPlugins({
+                schema: schema,
+                menuBar: true,
+                history: true
+            })
+        }),
+        nodeViews: {
+            inline_shortcode: function (node, view, getPos) {
+                return new ShortcodeNodeView(node, view, getPos)
+            },
+            block_shortcode: function (node, view, getPos) {
+                return new ShortcodeNodeView(node, view, getPos)
+            }
+        },
+        dispatchTransaction: function (tr) {
+            // console.log(this);
+            // console.log(tr);
+            this.updateState(this.state.apply(tr));
+            const newValue = docToHtml(this.state.doc);
+            if (newValue != storageNode.value) {
+                storageNode.value = newValue;
+                var event = document.createEvent('Event');
+                event.initEvent('change', true, true); //can bubble, and is cancellable
+                storageNode.dispatchEvent(event);
+            }
+        }
+    });
+    return editorView;
+}
 //# sourceMappingURL=index.js.map

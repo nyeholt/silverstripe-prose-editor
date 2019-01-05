@@ -3,6 +3,7 @@ import { Schema } from "prosemirror-model";
 import { schema } from "prosemirror-schema-basic"
 import { setSchema } from "./proseutil/doc-utils";
 import { tableNodes } from 'prosemirror-tables';
+import { InlineShortcodeNodeSpec, BlockShortcodeNodeSpec } from "./plugins/shortcodes";
 
 let schemaNodes = addListNodes(schema.spec.nodes, "paragraph block*", "block");
 
@@ -20,6 +21,8 @@ let tNodes = tableNodes({
 
 schemaNodes = schemaNodes.append(tNodes);
 schemaNodes = schemaNodes.append({
+    inline_shortcode: InlineShortcodeNodeSpec,
+    block_shortcode: BlockShortcodeNodeSpec,
     image: {
         inline: true,
         attrs: {

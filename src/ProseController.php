@@ -13,6 +13,7 @@ use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Assets\Upload;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\View\Parsers\ShortcodeParser;
 
 
 /**
@@ -26,6 +27,7 @@ class ProseController extends Controller
     private static $allowed_actions = array(
         'childnodes',
         'pastefile',
+        'rendershortcode'
     );
 
     private static $type_map = [
@@ -240,4 +242,41 @@ class ProseController extends Controller
 
         return '';
     }
+
+    public function rendershortcode()
+    {
+        $item      = $this->owner->getRequest()->getVar('shortcode');
+        if ($item) {
+            $shortcodeParams = $this->owner->getRequest()->getVar('attrs') ?
+                json_decode($this->owner->getRequest()->getVar('attrs'), true) : [];
+            $shortcodeStr = $this->shortcodeStr($item, $shortcodeParams);
+            return ShortcodeParser::get_active()->parse($shortcodeStr);
+        }
+    }
+
+    protected function shortcodeStr($shortcode, $params) {
+        $paramStr = $this->attrListToAttrString($params);
+        $shortcode = '[' . $shortcode . ']';
+        return strlen($paramStr) ? str_replace(']', ',' . $paramStr . ']', $shortcode) : $shortcode;
+    }
+
+    /**
+     * Convert an array of key => values to shortcode parameters.
+     *
+     * @param aray $shortcodeParams
+     * @return string
+     */
+    protected function attrListToAttrString($shortcodeParams) {
+        $params = [];
+        if (is_array($shortcodeParams)) {
+
+            foreach ($shortcodeParams as $name => $values) {
+                if (strlen($values)) {
+                    $params[] = $name . '="' . $values . '"';
+                }
+            }
+        }
+        return implode(',', $params);
+    }
+
 }

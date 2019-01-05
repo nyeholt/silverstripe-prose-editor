@@ -16,9 +16,18 @@ use SilverStripe\View\SSViewer;
 use SilverStripe\CMS\Controllers\ContentController;
 
 
-
 class ProseShortcodes
 {
+    public static function placeholder($arguments, $content = null, $parser = null)
+    {
+        return '<span style="inline-block; min-width: 100px; padding: 0.1rem; background-color: #ececec;">Placeholder</span>';
+    }
+
+    public static function block_placeholder($arguments, $content = null, $parser = null)
+    {
+        return '<div style="inline-block; min-width: 100px; min-height: 2rem; padding: 0.5rem; background-color: #ececec;">Placeholder</div>';
+    }
+
     public static function childlist_handler($arguments, $content = null, $parser = null)
     {
         $page = self::shortcode_object($arguments);

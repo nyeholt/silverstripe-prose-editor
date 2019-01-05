@@ -2,7 +2,6 @@ import { MenuItem } from "prosemirror-menu";
 import { toggleMark } from "prosemirror-commands";
 import { wrapInList } from "prosemirror-schema-list";
 import { InputRule } from "prosemirror-inputrules";
-import { findWrapping } from "prosemirror-transform";
 import { Selection, TextSelection } from "prosemirror-state";
 
 export function markActive(state, type) {
@@ -30,8 +29,14 @@ export function cmdItem(cmd, options) {
         label: options.title,
         run: cmd
     };
-    for (var prop in options) { passedOptions[prop] = options[prop]; }
-    if ((!options.enable || options.enable === true) && !options.select) { passedOptions[options.enable ? "enable" : "select"] = function (state) { return cmd(state); }; }
+    for (var prop in options) {
+        passedOptions[prop] = options[prop];
+    }
+    if ((!options.enable || options.enable === true) && !options.select) {
+        passedOptions[options.enable ? "enable" : "select"] = function (state) {
+            return cmd(state);
+        };
+    }
 
     return new MenuItem(passedOptions)
 }
@@ -102,4 +107,17 @@ export function positionAroundMark(doc, pos, markType) {
     return { from: startPos, to: endPos };
 }
 
+/**
+ * Finds the editor DOM field wrapping around the given HTML Element
+ * @param {HTMLElement} node
+ */
+export function findEditorFieldNode(node) {
+    if (!node) {
+        return;
+    }
+    if (node.getAttribute('data-prose-url')) {
+        return node;
+    }
+    return findEditorFieldNode(node.parentElement);
+}
 
