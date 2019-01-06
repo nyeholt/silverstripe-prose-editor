@@ -89,15 +89,23 @@ function nodeToShortcode(node) {
         return "";
     }
     if (node.attrs.shortcode.args) {
-        const keys = Object.keys(node.attrs.shortcode.args);
-        if (keys.length > 0) {
-            const attrs = keys.map(function (item) {
-                return item + "=" + node.attrs.shortcode.args[key];
-            });
-            attrStr = "," + attrs.join(',');
+        const argStr = argsToAttrString(node.attrs.shortcode.args);
+        if (argStr.length > 0) {
+            attrStr = "," + argStr;
         }
     }
     return "[" + node.attrs.shortcode.type + attrStr + "]";
+}
+
+function argsToAttrString(args) {
+    const keys = Object.keys(args);
+    if (keys.length > 0) {
+        const attrs = keys.map(function (item) {
+            return item + "=" + args[item];
+        });
+        return attrs.join(',');
+    }
+    return "";
 }
 
 export const ShortcodeViewer = new Plugin({
@@ -121,14 +129,16 @@ export class ShortcodeNodeView {
         const editorParent = findEditorFieldNode(view.dom);
         if (editorParent && this.node.attrs.shortcode) {
             const shortcodeUrl = editorParent.getAttribute('data-prose-url') + '/rendershortcode';
-
+            let shortcodeArgs = this.node.attrs.shortcode.args;
+            shortcodeArgs = shortcodeArgs || {};
+            shortcodeArgs.context_id = editorParent.getAttribute('data-context-id');
             const w = wretch();
             w.url(shortcodeUrl).query({
                 shortcode: this.node.attrs.shortcode.type,
-                args: this.node.attrs.shortcode.args
+                attrs: JSON.stringify(shortcodeArgs)
             }).get().text(function (res) {
-                _dom.innerHTML = res;
-            });
+                    _dom.innerHTML = res;
+                });
         }
 
         this.dom.innerHTML = 'Loading...';
@@ -156,7 +166,7 @@ export class ShortcodeNodeView {
 /**
  * Command for inserting
  */
-export function insertShortcode(shortcode, shortcodeNodeType) {
+export function insertShortcode(shortcode, attributes, shortcodeNodeType) {
     if (!shortcode) {
         shortcode = 'inline_placeholder';
     }
@@ -169,7 +179,6 @@ export function insertShortcode(shortcode, shortcodeNodeType) {
                         type: shortcode
                     }
                 });
-                console.log(newNode);
                 dispatch(state.tr.replaceSelectionWith(newNode));
             }
             return true;

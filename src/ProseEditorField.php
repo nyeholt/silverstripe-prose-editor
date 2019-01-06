@@ -24,6 +24,11 @@ class ProseEditorField extends FormField
 
     protected $uploadPath = 'Uploads';
 
+    /**
+     * is this editor attached to a particular object?
+     */
+    protected $contextId = 0;
+
     protected $schemaDataType = FormField::SCHEMA_DATA_TYPE_TEXT;
 
     public function __construct($name, $title = null, $value = null)
@@ -45,6 +50,17 @@ class ProseEditorField extends FormField
         return $this->uploadPath;
     }
 
+    public function setContextId($v)
+    {
+        $this->contextId = $v;
+        return $this;
+    }
+
+    public function getContextId()
+    {
+        return $this->contextId;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -56,6 +72,7 @@ class ProseEditorField extends FormField
                 'class' => 'ProseEditorField',
                 'data-prose-url' => '__prose',
                 'data-upload-path' => $this->uploadPath,
+                'data-context-id' => $this->contextId,
                 'value' => null,
                 'type' => null,
             )

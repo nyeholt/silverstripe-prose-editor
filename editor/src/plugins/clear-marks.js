@@ -15,7 +15,6 @@ export function clearMarks() {
             return state.selection != null;
         },
         run: function run(state, dispatch, view) {
-            console.log(state);
             dispatch(state.tr.removeMark(state.selection.$from.pos, state.selection.$to.pos));
         }
     })

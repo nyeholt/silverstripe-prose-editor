@@ -45,6 +45,7 @@ class ProseShortcodes
         $extraArgs = isset($arguments['args']) ? explode(',', $arguments['args']) : [];
         return self::field_value($page, $field, $extraArgs);
     }
+
     private static function field_value($object, $field, $extraArgs)
     {
         $bits = explode('.', $field);
@@ -58,6 +59,7 @@ class ProseShortcodes
         $nextObject = $object->dbObject($nextField);
         return self::field_value($nextObject, implode('.', $bits), $extraArgs);
     }
+
     private static function shortcode_object($arguments)
     {
         $page = null;
@@ -69,15 +71,22 @@ class ProseShortcodes
             $controller = Controller::has_curr() ? Controller::curr() : null;
             $page = $controller instanceof ContentController ? $controller->data() : null;
         }
+
+        if (!$page) {
+            // check whether there's a context id
+            if (isset($arguments['context_id'])) {
+                $page = $class::get()->byID($arguments['context_id']);
+            }
+        }
         return $page && $page->hasMethod('canView') ? ($page->canView() ? $page : null) : $page;
     }
 
     public static function listing_content($arguments, $content = null, $parser = null)
     {
-        $pageId = isset($arguments['page_id']) ? $arguments['page_id'] : 0;
+        $pageId = isset($arguments['id']) ? $arguments['id'] : 0;
         $sourceId = isset($arguments['source_id']) ? $arguments['source_id'] : 0;
         if (!$pageId) {
-            return "Please set a page_id attribute of the listing page to embed, and optionally a source_id for it to list from ('me' is valid here)";
+            return "Please set the 'id' attribute of the listing page to embed, and optionally a source_id for it to list from ('me' is valid here)";
         }
         $listingPage = ListingPage::get()->byId($pageId);
         if ($listingPage) {
@@ -86,6 +95,8 @@ class ProseShortcodes
                     $ctrl = Controller::curr();
                     if ($ctrl instanceof ContentController) {
                         $sourceId = $ctrl->data()->ID;
+                    } else if (isset($arguments['context_id'])) {
+                        $sourceId = $arguments['context_id'];
                     }
                 }
                 $listingPage->ListingSourceID = (int)$sourceId;

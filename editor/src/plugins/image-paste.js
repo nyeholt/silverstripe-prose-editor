@@ -51,9 +51,9 @@ export const imagePaste = new Plugin({
                         // by simply returning true, we let the image get pasted as base64 data: urls.
                         var file = clipboardData.items[i].getAsFile();
                         if (!file) {
-                            file = clipboardData.items[i].getAsString(function (s) {
-                                console.log(s);
-                            });
+                            // file = clipboardData.items[i].getAsString(function (s) {
+                            //     console.log(s);
+                            // });
                             alert("Could not convert clipboard data to file, please try a smaller image");
                             continue;
                         }

@@ -305,14 +305,21 @@ export function buildMenuItems(schema) {
     }
 
     if (type = schema.nodes.inline_shortcode) {
-        r.insertInlineShortcode = cmdItem(insertShortcode('show_field', schema.nodes.inline_shortcode), {
+        const showFieldArgs = {
+            'field': 'text',
+            'id': 'text'
+        };
+        const listingArgs = {
+            'id': 'text',
+            'source_id': 'text',
+        }
+
+        r.insertInlineShortcode = cmdItem(insertShortcode('show_field', showFieldArgs, schema.nodes.inline_shortcode), {
             title: "Page field",
-            label: "Page field"
         });
 
-        r.insertBlockShortcode = cmdItem(insertShortcode('block_placeholder', schema.nodes.block_shortcode), {
+        r.insertBlockShortcode = cmdItem(insertShortcode('listing', listingArgs, schema.nodes.block_shortcode), {
             title: "Block shortcode",
-            label: "Block Shortcode"
         });
     }
 
@@ -341,7 +348,7 @@ export function buildMenuItems(schema) {
 
     r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, /* r.shortcodeMenu,*/ r.tableMenu, r.viewSource])];
+    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, r.viewSource])];
 
     r.fullMenu = r.inlineMenu.concat(
         [[r.insertMenu, r.typeMenu]],
