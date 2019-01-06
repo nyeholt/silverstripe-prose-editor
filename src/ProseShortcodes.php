@@ -101,7 +101,7 @@ class ProseShortcodes
                 }
                 $listingPage->ListingSourceID = (int)$sourceId;
             }
-            return $listingPage->Content();
+            return $listingPage->Content(). ' ';
         }
     }
     public static function workflow_tasks($arguments, $content = null, $parser = null)

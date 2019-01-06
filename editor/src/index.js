@@ -1,6 +1,7 @@
 
 import { setupEditor } from "./setup"
 
+
 const editors = [];
 
 const editorNodes = document.querySelectorAll('div.ProseEditorField');

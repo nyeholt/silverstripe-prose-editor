@@ -319,7 +319,7 @@ export function buildMenuItems(schema) {
         });
 
         r.insertBlockShortcode = cmdItem(insertShortcode('listing', listingArgs, schema.nodes.block_shortcode), {
-            title: "Block shortcode",
+            title: "Content list",
         });
     }
 
@@ -600,8 +600,6 @@ export function setupEditor(editorNode, valueNode, storageNode) {
             }
         },
         dispatchTransaction: function (tr) {
-            // console.log(this);
-            // console.log(tr);
             this.updateState(this.state.apply(tr));
             const newValue = docToHtml(this.state.doc);
             if (newValue != storageNode.value) {
