@@ -114,9 +114,9 @@ function argsToAttrString(args) {
     const keys = Object.keys(args);
     if (keys.length > 0) {
         const attrs = keys.map(function (item) {
-            return item + "=" + args[item];
+            return item + '="' + args[item] + '"';
         });
-        return attrs.join(',');
+        return attrs.join(' ');
     }
     return "";
 }
