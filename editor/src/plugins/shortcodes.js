@@ -62,7 +62,7 @@ export const InlineShortcodeNodeSpec = {
 
 const blockParse = [
     Object.assign({}, InlineShortcodeNodeSpec.parseDOM[0], {
-        tag: BLOCK_CONTAINER_ELEM
+        tag: BLOCK_CONTAINER_ELEM + "[class=" + PROSE_CLASS + "]"
     })
 ];
 
