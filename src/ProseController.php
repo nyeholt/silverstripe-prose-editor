@@ -14,6 +14,7 @@ use SilverStripe\Assets\Upload;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\View\Parsers\ShortcodeParser;
+use SilverStripe\View\Parsers\HTML4Value;
 
 
 /**
@@ -250,7 +251,12 @@ class ProseController extends Controller
             $shortcodeParams = $this->owner->getRequest()->getVar('attrs') ?
                 json_decode($this->owner->getRequest()->getVar('attrs'), true) : [];
             $shortcodeStr = $this->shortcodeStr($item, $shortcodeParams);
-            return ShortcodeParser::get_active()->parse($shortcodeStr);
+            $str = ShortcodeParser::get_active()->parse($shortcodeStr);
+            if ($str && strlen($str)) {
+                $str = HTML4Value::create($str)->getContent();
+                $str = preg_replace('~>\\s+<~m', '><', $str);
+            }
+            return trim($str);
         }
     }
 
