@@ -139,9 +139,13 @@ class ProseController extends Controller
     protected function generateThumbnails(Image $image)
     {
         $thumbs = array();
-        $thumbs['x16'] = $image->Fit(16, 16)->Link();
-        $thumbs['x32'] = $image->Fit(32, 32)->Link();
-        $thumbs['x128'] = $image->Fit(128, 128)->Link();
+        $by16 = $image->Fit(16, 16);
+        $by32 = $image->Fit(32, 32);
+        $by128 = $image->Fit(128, 128);
+
+        $thumbs['x16'] = $by16 ? $by16->Link() : '';
+        $thumbs['x32'] = $by32 ? $by32->Link() : '';
+        $thumbs['x128'] = $by128 ? $by128->Link() : '';
         return $thumbs;
     }
 
