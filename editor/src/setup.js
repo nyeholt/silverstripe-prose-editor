@@ -350,7 +350,7 @@ export function buildMenuItems(schema) {
 
     r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, r.editMarkdown, r.viewSource])];
+    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, /*r.editMarkdown*/, r.viewSource])];
 
     r.fullMenu = r.inlineMenu.concat(
         [[r.insertMenu, r.typeMenu]],
