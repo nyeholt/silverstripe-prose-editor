@@ -20,6 +20,7 @@ import { EditorView } from 'prosemirror-view';
 import { EditorState } from 'prosemirror-state';
 
 import schema from './schema';
+import editMarkdown from './plugins/markdown-editing';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -324,6 +325,7 @@ export function buildMenuItems(schema) {
     }
 
     r.viewSource = viewSource();
+    r.editMarkdown = editMarkdown();
 
     const shortcodeDropdown = [
         r.insertInlineShortcode,
@@ -348,7 +350,7 @@ export function buildMenuItems(schema) {
 
     r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
     r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, r.viewSource])];
+    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, r.editMarkdown, r.viewSource])];
 
     r.fullMenu = r.inlineMenu.concat(
         [[r.insertMenu, r.typeMenu]],
