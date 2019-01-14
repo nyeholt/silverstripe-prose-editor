@@ -59,12 +59,13 @@ export class TreeField extends Field {
 
         const treeUrlBase = this.options.url;
         const treeType = this.options.type == 'file' ? 'file' : 'page';
-
+        const isStage = location.href.indexOf('stage=Stage') > 0;
         $(treeDiv).jstree({
             core: {
                 data: {
                     url: function (node) {
-                        return treeUrlBase + '/childnodes/' + treeType + '?id=' + node.id;
+                        const appendage = isStage ? '&stage=Stage' : '';
+                        return treeUrlBase + '/childnodes/' + treeType + '?id=' + node.id + appendage;
                     }
                 }
             }
