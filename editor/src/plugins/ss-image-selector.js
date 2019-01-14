@@ -60,7 +60,7 @@ export function imageSelector(nodeType) {
                 callback: function callback(attrs) {
                     if (attrs.imageId) {
                         attrs['data-id'] = attrs.imageId.id;
-                        attrs['data-shortcode'] = 'image';
+                        // attrs['data-shortcode'] = 'image';
                     }
 
                     view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));

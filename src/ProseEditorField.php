@@ -9,6 +9,7 @@ use SilverStripe\Assets\File;
 use SilverStripe\Core\Manifest\ModuleResourceLoader;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Core\Convert;
+use SilverStripe\Assets\Shortcodes\ImageShortcodeProvider;
 
 
 class ProseEditorField extends FormField
@@ -39,7 +40,8 @@ class ProseEditorField extends FormField
         Requirements::javascript('symbiote/silverstripe-prose-editor: editor/dist/main.js');
     }
 
-    public function setContext(DataObject $object) {
+    public function setContext(DataObject $object)
+    {
         // expects a link and ID to be available.
         if ($object->hasMethod('RelativeLink')) {
             $this->setUploadPath($object->RelativeLink());
