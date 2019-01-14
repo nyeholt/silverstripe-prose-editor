@@ -39,6 +39,15 @@ class ProseEditorField extends FormField
         Requirements::javascript('symbiote/silverstripe-prose-editor: editor/dist/main.js');
     }
 
+    public function setContext(DataObject $object) {
+        // expects a link and ID to be available.
+        if ($object->hasMethod('RelativeLink')) {
+            $this->setUploadPath($object->RelativeLink());
+        }
+        $this->setContextId($object->ID);
+        return $this;
+    }
+
     public function setUploadPath($v)
     {
         $this->uploadPath = $v;
