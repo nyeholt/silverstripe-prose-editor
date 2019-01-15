@@ -263,6 +263,10 @@ export function buildMenuItems(schema) {
         r.insertHorizontalRule = new prosemirrorMenu.MenuItem({
             title: "Insert horizontal rule",
             label: "Horizontal rule",
+            icon: {
+                width: 8, height: 8,
+                path: "M0 3v2h8v-2h-8z"
+            },
             enable: function enable(state) { return canInsert(state, hr) },
             run: function run(state, dispatch) {
                 dispatch(state.tr.replaceSelectionWith(hr.create()));
@@ -296,12 +300,17 @@ export function buildMenuItems(schema) {
             item("Toggle header cells", toggleHeaderCell)
         ]
 
-        r.insertTable = item("Table", function (state, _, view) {
-            const schema = view.state.schema;
-            // attrs.href = attrs.externalLink ? attrs.externalLink : attrs.pageLink;
+        r.insertTable = cmdItem(function (state, _, view) {
             const node = htmlToDoc('<table><tr><td></td><td></td></tr></table>')
             view.dispatch(view.state.tr.replaceSelectionWith(node, false));
             view.focus();
+        }, {
+            label: "Table",
+            title: "Insert table",
+            icon: {
+                width: 8, height: 8,
+                path: "M0 0v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2zm-6 3v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2zm-6 3v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2z"
+            }
         });
     }
 
@@ -341,16 +350,9 @@ export function buildMenuItems(schema) {
         r.insertBlockShortcode
     ];
 
-    const insertDropdown = [
-        r.insertTable,
-        r.insertHorizontalRule,
-    ]
-
-
     var cut = function (arr) { return arr.filter(function (x) { return x; }); };
 
     r.tableMenu = new prosemirrorMenu.Dropdown(cut(tableMenu), { label: "Table" });
-    r.insertMenu = new prosemirrorMenu.Dropdown(cut(insertDropdown), { label: "Insert" });
     r.shortcodeMenu = new prosemirrorMenu.Dropdown(cut(shortcodeDropdown), { label: "Shortcodes" });
 
     r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
@@ -358,11 +360,11 @@ export function buildMenuItems(schema) {
     ]), { label: "Heading" })]), { label: "Type..." });
 
     r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
-    r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
+    r.blockMenu = [cut([r.insertHorizontalRule, r.insertTable, r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
     prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, /*r.editMarkdown*/, r.viewSource])];
 
     r.fullMenu = r.inlineMenu.concat(
-        [[r.insertMenu, r.typeMenu]],
+        [[r.typeMenu]],
 
         [[prosemirrorMenu.undoItem, prosemirrorMenu.redoItem]],
         r.blockMenu
