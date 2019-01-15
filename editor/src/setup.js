@@ -322,12 +322,21 @@ export function buildMenuItems(schema) {
         r.insertBlockShortcode = cmdItem(insertShortcode('listing', listingArgs, schema.nodes.block_shortcode), {
             title: "Content list",
         });
+
+        r.insertEmbed = cmdItem(insertShortcode('embed', {
+            'url' : 'text',
+            'width': 'text',
+            'height': 'text'
+        }, schema.nodes.block_shortcode), {
+            title: "Embed"
+        });
     }
 
     r.viewSource = viewSource();
     r.editMarkdown = editMarkdown();
 
     const shortcodeDropdown = [
+        r.insertEmbed,
         r.insertInlineShortcode,
         r.insertBlockShortcode
     ];
