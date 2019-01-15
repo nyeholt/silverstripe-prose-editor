@@ -27,7 +27,7 @@ class ProseController extends Controller
 
     private static $allowed_actions = array(
         'childnodes',
-        'pastefile',
+        'pastefile' => 'CMS_ACCESS_CMSMain',
         'rendershortcode'
     );
 
