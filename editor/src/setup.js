@@ -3,10 +3,7 @@
 import { openPrompt } from './proseutil/prose-prompt';
 import viewSource from './plugins/view-source';
 
-import {
-    addColumnBefore, addColumnAfter, deleteColumn, addRowBefore,
-    deleteRow, deleteTable, mergeCells, splitCell, toggleHeaderColumn, toggleHeaderRow, toggleHeaderCell, addRowAfter, columnResizing, tableEditing, goToNextCell
-} from 'prosemirror-tables';
+import { columnResizing, tableEditing, goToNextCell } from 'prosemirror-tables';
 import { htmlToDoc, domToDoc, docToHtml } from './proseutil/doc-utils';
 import { linkSelector } from './plugins/ss-link-selector';
 import { markItem, wrapListItem, canInsert, markWrappingInputRule, cmdItem } from './proseutil/editor-utils';
@@ -21,6 +18,7 @@ import { EditorState } from 'prosemirror-state';
 
 import schema from './schema';
 import editMarkdown from './plugins/markdown-editing';
+import { tableTools } from './plugins/table-tools';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -274,32 +272,7 @@ export function buildMenuItems(schema) {
         });
     }
 
-    let tableMenu = [];
-
     if (type = schema.nodes.table) {
-        function item(label, cmd) {
-            return new prosemirrorMenu.MenuItem({
-                title: label,
-                label,
-                // select: cmd,
-                run: cmd
-            });
-        }
-        tableMenu = [
-            item("Insert column before", addColumnBefore),
-            item("Insert column after", addColumnAfter),
-            item("Delete column", deleteColumn),
-            item("Insert row before", addRowBefore),
-            item("Insert row after", addRowAfter),
-            item("Delete row", deleteRow),
-            item("Delete table", deleteTable),
-            item("Merge cells", mergeCells),
-            item("Split cell", splitCell),
-            item("Toggle header column", toggleHeaderColumn),
-            item("Toggle header row", toggleHeaderRow),
-            item("Toggle header cells", toggleHeaderCell)
-        ]
-
         r.insertTable = cmdItem(function (state, dispatch, view) {
             const node = htmlToDoc('<table><tr><td></td><td></td></tr></table>')
             if (dispatch) {
@@ -355,7 +328,6 @@ export function buildMenuItems(schema) {
 
     var cut = function (arr) { return arr.filter(function (x) { return x; }); };
 
-    r.tableMenu = new prosemirrorMenu.Dropdown(cut(tableMenu), { label: "Table" });
     r.shortcodeMenu = new prosemirrorMenu.Dropdown(cut(shortcodeDropdown), { label: "Shortcodes" });
 
     r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
@@ -364,7 +336,7 @@ export function buildMenuItems(schema) {
 
     r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
     r.blockMenu = [cut([r.insertHorizontalRule, r.insertTable, r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, r.tableMenu, /*r.editMarkdown*/, r.viewSource])];
+    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, /*r.editMarkdown*/, r.viewSource])];
 
     r.fullMenu = r.inlineMenu.concat(
         [[r.typeMenu]],
@@ -573,6 +545,7 @@ function setupPlugins(options) {
         prosemirrorDropcursor.dropCursor(),
         prosemirrorGapcursor.gapCursor(),
         imagePaste,
+        tableTools,
         columnResizing(),
         tableEditing(),
         prosemirrorKeymap.keymap(
