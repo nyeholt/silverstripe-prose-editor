@@ -300,10 +300,13 @@ export function buildMenuItems(schema) {
             item("Toggle header cells", toggleHeaderCell)
         ]
 
-        r.insertTable = cmdItem(function (state, _, view) {
+        r.insertTable = cmdItem(function (state, dispatch, view) {
             const node = htmlToDoc('<table><tr><td></td><td></td></tr></table>')
-            view.dispatch(view.state.tr.replaceSelectionWith(node, false));
-            view.focus();
+            if (dispatch) {
+                dispatch(state.tr.replaceSelectionWith(node, false));
+                view.focus();
+            }
+            return true;
         }, {
             label: "Table",
             title: "Insert table",
