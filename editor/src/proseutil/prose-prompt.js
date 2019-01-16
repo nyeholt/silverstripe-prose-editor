@@ -69,7 +69,7 @@ export function openPrompt(options) {
     buttons.appendChild(cancelButton);
 
     var box = wrapper.getBoundingClientRect();
-    wrapper.style.top = ((window.innerHeight - box.height) / 2) + "px";
+    wrapper.style.top = (((window.innerHeight - box.height) / 2) - 100) + "px";
     wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
 
     if (addAutoComplete && autoCompleteField) {

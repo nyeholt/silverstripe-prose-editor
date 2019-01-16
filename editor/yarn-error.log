@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /opt/yarn-v1.5.1/bin/yarn.js add prosemirror-markdown
+  /usr/local/bin/node /opt/yarn-v1.5.1/bin/yarn.js remove jquery
 
 PATH: 
   /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -52,7 +52,7 @@ npm manifest:
     },
     "dependencies": {
       "file-loader": "^3.0.1",
-      "jstree": "^3.3.7",
+      "prosemirror-markdown": "^1.2.2",
       "prosemirror-tables": "^0.7.10",
       "wretch": "^1.4.2"
     }
@@ -2845,10 +2845,6 @@ Lockfile:
     version "0.1.2"
     resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   
-  jquery@>=1.9.1:
-    version "3.3.1"
-    resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
-  
   js-base64@^2.1.8:
     version "2.4.9"
     resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.9.tgz#748911fb04f48a60c4771b375cac45a80df11c03"
@@ -2923,12 +2919,6 @@ Lockfile:
       json-schema "0.2.3"
       verror "1.10.0"
   
-  jstree@^3.3.7:
-    version "3.3.7"
-    resolved "https://registry.yarnpkg.com/jstree/-/jstree-3.3.7.tgz#41df485d66148836ac389603a3e12f4574b06251"
-    dependencies:
-      jquery ">=1.9.1"
-  
   killable@^1.0.0:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/killable/-/killable-1.0.1.tgz#4c8ce441187a061c7474fb87ca08e2a638194892"
@@ -2964,6 +2954,12 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/lcid/-/lcid-2.0.0.tgz#6ef5d2df60e52f82eb228a4c373e8d1f397253cf"
     dependencies:
       invert-kv "^2.0.0"
+  
+  linkify-it@^2.0.0:
+    version "2.1.0"
+    resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.1.0.tgz#c4caf38a6cd7ac2212ef3c7d2bde30a91561f9db"
+    dependencies:
+      uc.micro "^1.0.1"
   
   livereload-js@^2.3.0:
     version "2.4.0"
@@ -3092,6 +3088,16 @@ Lockfile:
     dependencies:
       object-visit "^1.0.0"
   
+  markdown-it@^8.4.2:
+    version "8.4.2"
+    resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-8.4.2.tgz#386f98998dc15a37722aa7722084f4020bdd9b54"
+    dependencies:
+      argparse "^1.0.7"
+      entities "~1.1.1"
+      linkify-it "^2.0.0"
+      mdurl "^1.0.1"
+      uc.micro "^1.0.5"
+  
   md5.js@^1.3.4:
     version "1.3.5"
     resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
@@ -3099,6 +3105,10 @@ Lockfile:
       hash-base "^3.0.0"
       inherits "^2.0.1"
       safe-buffer "^5.1.2"
+  
+  mdurl@^1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz#fe85b2ec75a59037f2adfec100fd6c601761152e"
   
   media-typer@0.3.0:
     version "0.3.0"
@@ -3962,6 +3972,13 @@ Lockfile:
     dependencies:
       prosemirror-state "^1.0.0"
       w3c-keyname "^1.1.8"
+  
+  prosemirror-markdown@^1.2.2:
+    version "1.2.2"
+    resolved "https://registry.yarnpkg.com/prosemirror-markdown/-/prosemirror-markdown-1.2.2.tgz#e9fcf73c242e5231e61906c5fe33c6bf78a9c517"
+    dependencies:
+      markdown-it "^8.4.2"
+      prosemirror-model "^1.0.0"
   
   prosemirror-menu@^1.0.0:
     version "1.0.5"
@@ -5020,6 +5037,10 @@ Lockfile:
     version "0.0.6"
     resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   
+  uc.micro@^1.0.1, uc.micro@^1.0.5:
+    version "1.0.5"
+    resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.5.tgz#0c65f15f815aa08b560a61ce8b4db7ffc3f45376"
+  
   uglify-js@3.4.x:
     version "3.4.9"
     resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.4.9.tgz#af02f180c1207d76432e473ed24a28f4a782bae3"
@@ -5456,8 +5477,10 @@ Lockfile:
       yargs-parser "^5.0.0"
 
 Trace: 
-  Error: https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz: ETIMEDOUT
-      at Timeout._onTimeout (/opt/yarn-v1.5.1/lib/cli.js:133094:19)
-      at ontimeout (timers.js:482:11)
-      at tryOnTimeout (timers.js:317:5)
-      at Timer.listOnTimeout (timers.js:277:5)
+  Error: This module isn't specified in a manifest.
+      at new MessageError (/opt/yarn-v1.5.1/lib/cli.js:186:110)
+      at Object.<anonymous> (/opt/yarn-v1.5.1/lib/cli.js:60445:15)
+      at Generator.next (<anonymous>)
+      at step (/opt/yarn-v1.5.1/lib/cli.js:98:30)
+      at /opt/yarn-v1.5.1/lib/cli.js:109:13
+      at <anonymous>

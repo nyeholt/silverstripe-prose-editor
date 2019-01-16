@@ -104,6 +104,8 @@ class ProseController extends Controller
                     } else if (!$haskids) {
                         // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
                         $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                    } else {
+                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
                     }
 
                     $nodeData['children'] = $haskids;

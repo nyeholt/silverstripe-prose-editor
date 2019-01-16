@@ -328,7 +328,7 @@
     margin-bottom: 23px;
   }
 
-  .ProseMirror-prompt-fieldwrapper .jstree {
+  .ProseMirror-prompt-fieldwrapper .infinite-tree-scroll {
       max-height: 200px;
       overflow-y: auto;
   }
