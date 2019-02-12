@@ -4,7 +4,8 @@
     "type": "silverstripe-vendormodule",
     "keywords": [
         "silverstripe",
-        "wysiwyg"
+        "wysiwyg",
+        "prose"
     ],
     "license": "BSD-3-Clause",
     "authors": [

@@ -114,15 +114,6 @@ class ProseController extends Controller
                         'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
                     ];
 
-                    // $nodeEntry = array(
-                    //     'attributes' => array('id' => $child->ClassName . '-' . $child->ID, 'text' => Convert::raw2att($nodeData['text']), 'link' => $child->RelativeLink()),
-                    //     'data' => $nodeData,
-                    //     'state' => $haskids ? 'closed' : 'open'
-                    // );
-
-                    // if ($thumbs) {
-                    //     $nodeEntry['thumbs'] = $thumbs;
-                    // }
 
                     $data[] = $nodeData;
                 }

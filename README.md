@@ -28,7 +28,7 @@ composer require symbiote/silverstripe-prose-editor:~1.0
 * Image paste and upload, 
 * Insert images from the CMS
 * Insert page links from the CMS
-* Creating new pages using square brackets/round brackets, [{page name}]({url-segment}]. You can leave url-segment empty, and one will be automatically created
+* Creating new pages using square brackets/round brackets, [{page name}]({url-segment}]. You can leave url-segment empty, and one will be automatically created (requires the frontend-authoring module)
 
 ### Shortcodes
 
