@@ -133,30 +133,30 @@ export class TreeField extends Field {
             }
         }.bind(this));
 
-        $(treeDiv).on('select_node.jstree', function (e, tree) {
-            let node = tree.node;
-            if (!node) {
-                return;
-            }
-            input.value = node.text;
-            if (this.options.titleField) {
-                document.getElementsByName(this.options.titleField).forEach((elem) => {
-                    elem.value = node.text;
-                });
-            }
+        // $(treeDiv).on('select_node.jstree', function (e, tree) {
+        //     let node = tree.node;
+        //     if (!node) {
+        //         return;
+        //     }
+        //     input.value = node.text;
+        //     if (this.options.titleField) {
+        //         document.getElementsByName(this.options.titleField).forEach((elem) => {
+        //             elem.value = node.text;
+        //         });
+        //     }
 
-            this.hiddenField.value = node.id;
+        //     this.hiddenField.value = node.id;
 
-            if (node.data) {
-                // if there's a linked field, use it
-                if (this.options.linkField && node.data.link) {
-                    document.getElementsByName(this.options.linkField).forEach((elem) => {
-                        elem.value = node.data.link;
-                    });
-                }
-            }
+        //     if (node.data) {
+        //         // if there's a linked field, use it
+        //         if (this.options.linkField && node.data.link) {
+        //             document.getElementsByName(this.options.linkField).forEach((elem) => {
+        //                 elem.value = node.data.link;
+        //             });
+        //         }
+        //     }
 
-        }.bind(this));
+        // }.bind(this));
 
         return div;
     }
