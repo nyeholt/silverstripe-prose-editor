@@ -1,7 +1,5 @@
-# [Module Title]
+# Prose Editor
 
-
-[![Build Status](https://travis-ci.org/symbiote/silverstripe-prose-editor.svg?branch=master)](https://travis-ci.org/symbiote/silverstripe-prose-editor)
 [![Latest Stable Version](https://poser.pugx.org/symbiote/silverstripe-prose-editor/version.svg)](https://github.com/symbiote/silverstripe-prose-editor/releases)
 [![Latest Unstable Version](https://poser.pugx.org/symbiote/silverstripe-prose-editor/v/unstable.svg)](https://packagist.org/packages/symbiote/silverstripe-prose-editor)
 [![Total Downloads](https://poser.pugx.org/symbiote/silverstripe-prose-editor/downloads.svg)](https://packagist.org/packages/symbiote/silverstripe-prose-editor)
@@ -20,6 +18,12 @@ composer require symbiote/silverstripe-prose-editor:~1.0
 ## Requirements
 
 * SilverStripe 4.1+
+
+
+## Quick Start
+
+Create and use ProseEditorField where you would otherwise use HtmlEditorField
+
 
 ## Documentation
 
@@ -52,9 +56,7 @@ ShortcodeParser::get('default')->register('userform', array(ProseShortcodes::cla
 * random_item: Gets a random page from the last 50 edited pages 
 * userform(form_id): Display the content of the userform from ID form_id
 
-### Quick Start
-
-
+More:
 
 * [License](LICENSE.md)
 * [Contributing](CONTRIBUTING.md)
