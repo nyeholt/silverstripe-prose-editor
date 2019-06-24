@@ -56,7 +56,30 @@ ShortcodeParser::get('default')->register('userform', array(ProseShortcodes::cla
 * random_item: Gets a random page from the last 50 edited pages 
 * userform(form_id): Display the content of the userform from ID form_id
 
-More:
+### Quick Start
+
+Where you'd normally use an HTMLEditorField, use `ProseEditorField` instead. 
+
+### Usage
+
+To enable or disable menu items, use `disableMenuItem($name)` and the correlation
+`enableMenuItem`. Menu items available are
+
+```
+insertlink
+insertimage
+bulletlist
+orderedlist
+quote
+paragraph
+pre
+hr
+table
+shortcode
+viewsource
+```
+
+You can also toggle inserting internal CMS links using `disableSetting('linkSelector', 'internal')`
 
 * [License](LICENSE.md)
 * [Contributing](CONTRIBUTING.md)

@@ -25,6 +25,25 @@ class ProseEditorField extends FormField
 
     protected $uploadPath = 'Uploads';
 
+    protected $settings = [
+        'menu' => [
+            'insertlink' => true,
+            'insertimage' => true,
+            'bulletlist' => true,
+            'orderedlist' => true,
+            'quote' => true,
+            'paragraph' => true,
+            'pre' => true,
+            'hr' => true,
+            'table' => true,
+            'shortcode' => true,
+            'viewsource' => true,
+        ],
+        'linkSelector' => [
+            'internal' => true
+        ]
+    ];
+
     /**
      * is this editor attached to a particular object?
      */
@@ -72,6 +91,31 @@ class ProseEditorField extends FormField
         return $this->contextId;
     }
 
+
+    public function enableSetting($type, $name)
+    {
+        $this->settings[$type][$name] = true;
+        return $this;
+    }
+
+    public function disableSetting($type, $name)
+    {
+        $this->settings[$type][$name] = false;
+        return $this;
+    }
+
+    public function enableMenuItem($name)
+    {
+        $this->settings['menu'][$name] = true;
+        return $this;
+    }
+
+    public function disableMenuItem($name)
+    {
+        $this->settings['menu'][$name] = false;
+        return $this;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -84,6 +128,7 @@ class ProseEditorField extends FormField
                 'data-prose-url' => '__prose',
                 'data-upload-path' => $this->uploadPath,
                 'data-context-id' => $this->contextId,
+                'data-prose-config' => \json_encode($this->settings),
                 'value' => null,
                 'type' => null,
             )

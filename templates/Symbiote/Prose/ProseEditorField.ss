@@ -1,5 +1,5 @@
 <div $AttributesHTML>
-    <div class="ProseEditorFieldEditor">
+    <div class="ProseEditorFieldEditor" data-prose-config="">
 
     </div>
     <div class="ProseEditorFieldValue" style="display: none">

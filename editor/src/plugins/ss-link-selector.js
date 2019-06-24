@@ -7,7 +7,8 @@ import { TextField } from "../fields/TextField";
 import { SelectField } from "../fields/SelectField";
 import { TreeField } from "../fields/TreeField";
 
-export function linkSelector(markType) {
+export function linkSelector(markType, options) {
+
     return new MenuItem({
         title: "Add link",
         icon: icons.link,
@@ -71,41 +72,48 @@ export function linkSelector(markType) {
                 }
             }
 
+            let formFields = {};
+
+            if (options.internal) {
+                formFields.pageLink = new TreeField({
+                    name: "search-page",
+                    label: "Select a page (or select external link below)",
+                    required: false,
+                    text: itemText,
+                    type: itemType,
+                    value: itemId
+                });
+            }
+
+            formFields = {
+                ...formFields,
+                externalLink: new TextField({
+                    label: "External URL",
+                    required: false,
+                    value: externalLink
+                }),
+                title: new TextField({
+                    label: "Description",
+                    required: false,
+                    value: attrs && attrs.title
+                }),
+                target: new SelectField({
+                    label: "Open target",
+                    required: false,
+                    value: attrs && attrs.target,
+                    options: [
+                        { value: '', label: 'default' },
+                        { value: '_blank', label: '_blank' },
+                        { value: '_self', label: '_self' },
+                        { value: '_parent', label: '_parent' },
+                        { value: '_top', label: '_top' },
+                    ]
+                }),
+            }
 
             openPrompt({
                 title: "Select link",
-                fields: {
-                    pageLink: new TreeField({
-                        name: "search-page",
-                        label: "Select a page",
-                        required: false,
-                        text: itemText,
-                        type: itemType,
-                        value: itemId
-                    }),
-                    externalLink: new TextField({
-                        label: "or External URL",
-                        required: false,
-                        value: externalLink
-                    }),
-                    title: new TextField({
-                        label: "Description",
-                        required: false,
-                        value: attrs && attrs.title
-                    }),
-                    target: new SelectField({
-                        label: "Open target",
-                        required: false,
-                        value: attrs && attrs.target,
-                        options: [
-                            { value: '', label: 'default' },
-                            { value: '_blank', label: '_blank' },
-                            { value: '_self', label: '_self' },
-                            { value: '_parent', label: '_parent' },
-                            { value: '_top', label: '_top' },
-                        ]
-                    }),
-                },
+                fields: formFields,
                 callback: function callback(attrs) {
                     attrs.href = attrs.externalLink;
                     if (attrs.href.length === 0) {

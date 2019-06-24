@@ -204,8 +204,11 @@ function insertLink(nodeType) {
 // **`fullMenu`**`: [[MenuElement]]`
 //   : An array of arrays of menu elements for use as the full menu
 //     for, for example the [menu bar](https://github.com/prosemirror/prosemirror-menu#user-content-menubar).
-export function buildMenuItems(schema) {
+export function buildMenuItems(schema, settings) {
     var r = {}, type;
+
+    let menuConfig = settings.menu;
+
     if (type = schema.marks.strong) { r.toggleStrong = markItem(type, { title: "Toggle strong style", icon: prosemirrorMenu.icons.strong }); }
     if (type = schema.marks.em) { r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: prosemirrorMenu.icons.em }); }
     // if (type = schema.marks.code) { r.toggleCode = markItem(type, { title: "Toggle code font", icon: prosemirrorMenu.icons.code }); }
@@ -213,7 +216,7 @@ export function buildMenuItems(schema) {
     r.clearMarks = clearMarks();
 
     if (type = schema.marks.link) {
-        r.toggleLink = linkSelector(type);
+        r.toggleLink = linkSelector(type, settings.linkSelector);
     }
 
     if (type = schema.nodes.image) { r.insertImage = imageSelector(type); }
@@ -251,7 +254,7 @@ export function buildMenuItems(schema) {
         for (var i = 1; i <= 10; i++) {
             r["makeHead" + i] = prosemirrorMenu.blockTypeItem(type, {
                 title: "Change to heading " + i,
-                label: "Level " + i,
+                label: "Heading " + i,
                 attrs: { level: i }
             });
         }
@@ -272,6 +275,19 @@ export function buildMenuItems(schema) {
         });
     }
 
+
+    // insertlink
+    // insertimage
+    // bulletlist
+    // orderedlist
+    // quote
+    // paragraph
+    // pre
+    // hr
+    // table
+    // shortcode
+    // viewsource
+
     if (type = schema.nodes.table) {
         r.insertTable = cmdItem(function (state, dispatch, view) {
             const node = htmlToDoc('<table><tr><td></td><td></td></tr></table>')
@@ -281,13 +297,13 @@ export function buildMenuItems(schema) {
             }
             return true;
         }, {
-            label: "Table",
-            title: "Insert table",
-            icon: {
-                width: 8, height: 8,
-                path: "M0 0v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2zm-6 3v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2zm-6 3v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2z"
-            }
-        });
+                label: "Table",
+                title: "Insert table",
+                icon: {
+                    width: 8, height: 8,
+                    path: "M0 0v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2zm-6 3v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2zm-6 3v2h2v-2h-2zm3 0v2h2v-2h-2zm3 0v2h2v-2h-2z"
+                }
+            });
     }
 
     if (type = schema.nodes.inline_shortcode) {
@@ -309,12 +325,12 @@ export function buildMenuItems(schema) {
         });
 
         r.insertEmbed = cmdItem(insertShortcode('embed', {
-            'url' : 'text',
+            'url': 'text',
             'width': 'text',
             'height': 'text'
         }, schema.nodes.block_shortcode), {
-            title: "Embed"
-        });
+                title: "Embed"
+            });
     }
 
     r.viewSource = viewSource();
@@ -330,13 +346,59 @@ export function buildMenuItems(schema) {
 
     r.shortcodeMenu = new prosemirrorMenu.Dropdown(cut(shortcodeDropdown), { label: "Shortcodes" });
 
-    r.typeMenu = new prosemirrorMenu.Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
-        r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
-    ]), { label: "Heading" })]), { label: "Type..." });
+    let typeItems = [
+        r.makeHead1,
+        r.makeHead2,
+        r.makeHead3,
+        r.makeHead4,
+        r.makeHead5,
+        r.makeHead6,
+        r.makeParagraph
+    ];
+    if (menuConfig.pre) {
+        typeItems.push(r.makeCodeBlock);
+    }
 
-    r.inlineMenu = [cut([r.clearMarks, r.toggleStrong, r.toggleEm, r.toggleLink, r.insertImage])];
-    r.blockMenu = [cut([r.insertHorizontalRule, r.insertTable, r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, prosemirrorMenu.joinUpItem,
-    prosemirrorMenu.liftItem, prosemirrorMenu.selectParentNodeItem, r.shortcodeMenu, /*r.editMarkdown*/, r.viewSource])];
+    // typeItems.push(r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
+    //     r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
+    // ]), { label: "Heading" }));
+
+    r.typeMenu = new prosemirrorMenu.Dropdown(cut(typeItems), { label: "Format..." });
+
+    const inlineItems = [r.clearMarks, r.toggleStrong, r.toggleEm];
+    if (menuConfig.insertlink) {
+        inlineItems.push(r.toggleLink);
+    }
+    if (menuConfig.insertimage) {
+        inlineItems.push(r.insertImage);
+    }
+    r.inlineMenu = [cut(inlineItems)];
+
+    const blockItems = [r.insertHorizontalRule];
+    if (menuConfig.table) {
+        blockItems.push(r.insertTable);
+    }
+    if (menuConfig.bulletlist) {
+        blockItems.push(r.wrapBulletList);
+    }
+    if (menuConfig.orderedlist) {
+        blockItems.push(r.wrapOrderedList);
+    }
+
+    blockItems.push(r.wrapBlockQuote);
+    blockItems.push(prosemirrorMenu.joinUpItem);
+
+    blockItems.push(prosemirrorMenu.liftItem);
+    blockItems.push(prosemirrorMenu.selectParentNodeItem);
+
+    if (menuConfig.shortcode) {
+        blockItems.push(r.shortcodeMenu);
+    }
+    if (menuConfig.viewsource) {
+        blockItems.push(r.viewSource);
+    }
+
+    r.blockMenu = [cut(blockItems)];
 
     r.fullMenu = r.inlineMenu.concat(
         [[r.typeMenu]],
@@ -558,7 +620,7 @@ function setupPlugins(options) {
     if (options.menuBar !== false) {
         plugins.push(prosemirrorMenu.menuBar({
             floating: options.floatingMenu !== false,
-            content: buildMenuItems(options.schema).fullMenu
+            content: buildMenuItems(options.schema, options.settings).fullMenu
         }));
     }
     if (options.history !== false) { plugins.push(prosemirrorHistory.history()); }
@@ -571,12 +633,38 @@ function setupPlugins(options) {
 }
 
 export function setupEditor(editorNode, valueNode, storageNode) {
+
+    const configStr = editorNode.parentNode.getAttribute('data-prose-config');
+    let config = {
+        menu: {
+            'insertlink': true,
+            'insertimage': true,
+            'bulletlist': true,
+            'orderedlist': true,
+            'quote': true,
+            'paragraph': true,
+            'pre': true,
+            'hr': true,
+            'table': true,
+            'shortcode': true,
+            'viewsource': true,
+        },
+        linkSelector: {
+            internal: true
+        }
+    };
+
+    if (configStr && configStr.length > 2) {
+        config = JSON.parse(configStr);
+    }
+
     let editorView = new EditorView(editorNode, {
         state: EditorState.create({
             doc: domToDoc(valueNode),
             plugins: setupPlugins({
                 schema: schema,
                 menuBar: true,
+                settings: config || {menu: {}, linkSelector: {}},
                 history: true
             })
         }),
