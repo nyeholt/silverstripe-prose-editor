@@ -20,4 +20,4 @@ for (let i = 0; i < editorNodes.length; i++) {
     editors.push(editor);
 }
 
-
+window.ProseSetup = setupEditor;

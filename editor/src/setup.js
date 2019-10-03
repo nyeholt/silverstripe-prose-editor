@@ -19,6 +19,7 @@ import { EditorState } from 'prosemirror-state';
 import schema from './schema';
 import editMarkdown from './plugins/markdown-editing';
 import { tableTools } from './plugins/table-tools';
+import { insertRow, insertCol } from './plugins/grid';
 
 var prosemirrorKeymap = require('prosemirror-keymap');
 var prosemirrorHistory = require('prosemirror-history');
@@ -306,6 +307,16 @@ export function buildMenuItems(schema, settings) {
             });
     }
 
+    if (type = schema.nodes.row) {
+        r.insertRow = cmdItem(insertRow(schema.nodes.row), {
+            title: "Row",
+        });
+
+        r.insertCol = cmdItem(insertCol(schema.nodes.column), {
+            title: "Col",
+        });
+    }
+
     if (type = schema.nodes.inline_shortcode) {
         const showFieldArgs = {
             'field': 'text',
@@ -359,10 +370,6 @@ export function buildMenuItems(schema, settings) {
         typeItems.push(r.makeCodeBlock);
     }
 
-    // typeItems.push(r.makeHead1 && new prosemirrorMenu.DropdownSubmenu(cut([
-    //     r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
-    // ]), { label: "Heading" }));
-
     r.typeMenu = new prosemirrorMenu.Dropdown(cut(typeItems), { label: "Format..." });
 
     const inlineItems = [r.clearMarks, r.toggleStrong, r.toggleEm];
@@ -374,7 +381,7 @@ export function buildMenuItems(schema, settings) {
     }
     r.inlineMenu = [cut(inlineItems)];
 
-    const blockItems = [r.insertHorizontalRule];
+    const blockItems = [r.insertRow, r.insertCol, r.insertHorizontalRule];
     if (menuConfig.table) {
         blockItems.push(r.insertTable);
     }
@@ -675,6 +682,10 @@ export function setupEditor(editorNode, valueNode, storageNode) {
             block_shortcode: function (node, view, getPos) {
                 return new ShortcodeNodeView(node, view, getPos)
             }
+            // ,
+            // row: function (node, view, getPos) {
+            //     return new RowNodeView(node, view, getPos);
+            // }
         },
         dispatchTransaction: function (tr) {
             this.updateState(this.state.apply(tr));
@@ -689,4 +700,3 @@ export function setupEditor(editorNode, valueNode, storageNode) {
     });
     return editorView;
 }
-//# sourceMappingURL=index.js.map
