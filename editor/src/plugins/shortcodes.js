@@ -2,6 +2,7 @@ import { Plugin } from "prosemirror-state";
 import { canInsert, findEditorFieldNode, buildSvg } from "../proseutil/editor-utils";
 import { openPrompt } from "../proseutil/prose-prompt";
 import { TextField } from "../fields/TextField";
+import wretch from 'wretch';
 
 const INLINE_CONTAINER_ELEM = 'span';
 const BLOCK_CONTAINER_ELEM = 'div';
