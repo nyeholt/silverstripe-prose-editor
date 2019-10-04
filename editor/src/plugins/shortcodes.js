@@ -238,6 +238,7 @@ export function insertShortcode(shortcode, attributes, shortcodeNodeType) {
 
 export function renderProseShortcode(shortcode, attrs, shortcodeUrl) {
     const w = wretch();
+    shortcodeUrl = shortcodeUrl || '/__prose/rendershortcode';
     return w.url(shortcodeUrl).query({
         shortcode: shortcode,
         attrs: JSON.stringify(attrs)
