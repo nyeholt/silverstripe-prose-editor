@@ -50,7 +50,7 @@ export const InlineShortcodeNodeSpec = {
             let shortcode = dom.getAttribute("data-shortcode");
             if (shortcode) {
                 let shortcodeData = JSON.parse(shortcode);
-                return {shortcode: shortcodeData};
+                return { shortcode: shortcodeData };
             }
             return InlineShortcodeNodeSpec.attrs.shortcode.default;
         }
@@ -186,11 +186,8 @@ export class ShortcodeNodeView {
             let shortcodeArgs = this.node.attrs.shortcode.args;
             shortcodeArgs = shortcodeArgs || {};
             shortcodeArgs.context_id = editorParent.getAttribute('data-context-id');
-            const w = wretch();
-            w.url(shortcodeUrl).query({
-                shortcode: this.node.attrs.shortcode.type,
-                attrs: JSON.stringify(shortcodeArgs)
-            }).get().text(function (res) {
+
+            renderProseShortcode(this.node.attrs.shortcode.type, shortcodeArgs, shortcodeUrl).text(function (res) {
                 contentHolder.innerHTML = res;
             });
         }
@@ -236,4 +233,13 @@ export function insertShortcode(shortcode, attributes, shortcodeNodeType) {
 
         return false;
     }
+}
+
+
+export function renderProseShortcode(shortcode, attrs, shortcodeUrl) {
+    const w = wretch();
+    return w.url(shortcodeUrl).query({
+        shortcode: shortcode,
+        attrs: JSON.stringify(attrs)
+    }).get();
 }
