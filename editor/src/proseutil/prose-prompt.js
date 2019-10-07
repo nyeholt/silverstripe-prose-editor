@@ -1,7 +1,7 @@
 
 var prefix = "ProseMirror-prompt";
 
-export function openPrompt(options) {
+export function openPrompt(options, createIn) {
     var wrapper = document.body.appendChild(document.createElement("div"));
     wrapper.style.width = '65%';
     wrapper.className = prefix;
@@ -25,6 +25,7 @@ export function openPrompt(options) {
             autoCompleteField = field.options.name;
         }
 
+        field.options.name = name;
         let formField = field.render();
         formField.setAttribute('data-label', field.options.label);
         domFields.push(formField);
@@ -38,7 +39,12 @@ export function openPrompt(options) {
     cancelButton.type = "button";
     cancelButton.className = prefix + "-cancel";
     cancelButton.textContent = "Cancel";
-    cancelButton.addEventListener("click", close);
+    cancelButton.addEventListener("click", function () {
+        if (options.cancel) {
+            options.cancel();
+            close();
+        }
+    });
 
     var form = wrapper.appendChild(document.createElement("form"));
     if (options.title) { form.appendChild(document.createElement("h5")).textContent = options.title; }
@@ -60,6 +66,16 @@ export function openPrompt(options) {
 
         form.appendChild(fieldWrapper);
 
+        if (options.update) {
+            field.addEventListener('change', function (e) {
+                options.update(field.name, options.fields[field.name].read(field));
+            });
+            field.addEventListener('keyup', function (e) {
+                options.update(field.name, options.fields[field.name].read(field));
+            })
+        }
+
+
         fieldNumber++;
     });
     var buttons = form.appendChild(document.createElement("div"));
@@ -68,9 +84,16 @@ export function openPrompt(options) {
     buttons.appendChild(document.createTextNode(" "));
     buttons.appendChild(cancelButton);
 
-    var box = wrapper.getBoundingClientRect();
-    wrapper.style.top = (((window.innerHeight - box.height) / 2) - 100) + "px";
-    wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
+    if (createIn) {
+        wrapper.style.position = 'static';
+        wrapper.style.width = '100%';
+        wrapper.style.border = 'none';
+        createIn.prepend(wrapper);
+    } else {
+        var box = wrapper.getBoundingClientRect();
+        wrapper.style.top = (((window.innerHeight - box.height) / 2) - 100) + "px";
+        wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
+    }
 
     if (addAutoComplete && autoCompleteField) {
         // injectAutoComplete(autoCompleteField);
