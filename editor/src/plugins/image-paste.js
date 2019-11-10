@@ -58,6 +58,8 @@ export const imagePaste = new Plugin({
                             continue;
                         }
 
+                        e.stopPropagation();
+
                         let tr = view.state.tr;
                         let id = (new Date).getTime();
                         if (!tr.selection.empty) {
