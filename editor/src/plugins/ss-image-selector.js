@@ -75,9 +75,9 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
 
     let usedFields = {};
     if (fieldList) {
-        fieldList.each(function (fieldName) {
-            usedFields[fieldName] = availableFields[fieldName];
-        });
+        for (let i = 0; i < fieldList.length; i++) {
+            usedFields[fieldList[i]] = availableFields[fieldList[i]];
+        }
     } else {
         usedFields = availableFields;
     }

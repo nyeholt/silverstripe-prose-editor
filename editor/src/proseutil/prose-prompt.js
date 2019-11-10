@@ -45,8 +45,8 @@ export function openPrompt(options, createIn) {
     cancelButton.addEventListener("click", function () {
         if (options.cancel) {
             options.cancel();
-            close();
         }
+        close();
     });
 
     var form = wrapper.appendChild(document.createElement("form"));
