@@ -101,7 +101,7 @@ class ProseController extends Controller
                     if ($child->ClassName == Image::class) {
                         $thumbs = $this->generateThumbnails($child);
                         $nodeData['icon'] = $thumbs['x32'];
-                    } else if (!$haskids) {
+                    } else if ($child instanceof SiteTree) {
                         // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
                         $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
                     } else {
