@@ -25,7 +25,10 @@ export function openPrompt(options, createIn) {
             autoCompleteField = field.options.name;
         }
 
-        field.options.name = name;
+        if (!field.options.name) {
+            field.options.name = name;
+        }
+
         let formField = field.render();
         formField.setAttribute('data-label', field.options.label);
         domFields.push(formField);
