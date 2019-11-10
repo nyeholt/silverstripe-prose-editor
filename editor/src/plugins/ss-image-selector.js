@@ -27,61 +27,64 @@ export function imageSelector(nodeType) {
             if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType) {
                 node = state.selection.node;
                 attrs = node.attrs;
+
+                attrs.alt = attrs.alt || state.doc.textBetween(from, to, " ");
             }
 
-            openPrompt({
-                title: "Insert image",
-                fields: {
-                    imageId: new TreeField({
-                        name: "search-image",
-                        linkField: 'image_location',
-                        titleField: 'image_title',
-                        label: "Select an image",
-                        required: false,
-                        text: '',
-                        type: 'file',
-                        value: null
-                    }),
-                    src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
-                    title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
-                    width: new TextField({
-                        label: "Width",
-                        value: attrs && attrs.width
-                    }),
-                    height: new TextField({
-                        label: "Height",
-                        value: attrs && attrs.height
-                    }),
-                    alt: new TextField({
-                        label: "Description",
-                        value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")
-                    })
-                },
-                callback: function callback(attrs) {
-                    if (attrs.imageId) {
-                        attrs['data-id'] = attrs.imageId.id;
-                        // attrs['data-shortcode'] = 'image';
-                    }
-
-                    view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
-                    view.focus();
+            imageSelectorDialog(attrs, function callback(newAttrs) {
+                if (newAttrs.imageId) {
+                    newAttrs['data-id'] = newAttrs.imageId.id;
+                    // attrs['data-shortcode'] = 'image';
                 }
-            });
 
-            // openPrompt({
-            //     title: "Create a link",
-            //     fields: {
-            //         href: new TextField({
-            //             label: "Link target",
-            //             required: true
-            //         }),
-            //         title: new TextField({ label: "Title" })
-            //     },
-            //     callback: function callback(attrs) {
-            //         prosemirrorCommands.toggleMark(markType, attrs)(view.state, view.dispatch);
-            //         view.focus();
-            //     }
-            // });
+                view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(newAttrs)));
+                view.focus();
+            });
         }
     })
+}
+
+
+export function imageSelectorDialog(attrs, callback, fieldList) {
+    const availableFields = {
+        imageId: new TreeField({
+            name: "search-image",
+            linkField: 'image_location',
+            titleField: 'image_title',
+            label: "Select an image",
+            required: false,
+            text: '',
+            type: 'file',
+            value: null
+        }),
+        src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
+        title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
+        width: new TextField({
+            label: "Width",
+            value: attrs && attrs.width
+        }),
+        height: new TextField({
+            label: "Height",
+            value: attrs && attrs.height
+        }),
+        alt: new TextField({
+            label: "Description",
+            value: attrs && attrs.alt
+        })
+    };
+
+    let usedFields = {};
+    if (fieldList) {
+        fieldList.each(function (fieldName) {
+            usedFields[fieldName] = availableFields[fieldName];
+        });
+    } else {
+        usedFields = availableFields;
+    }
+
+    openPrompt({
+        title: "Select image",
+        fields: usedFields,
+        callback: callback
+    });
 }
