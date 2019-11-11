@@ -15,7 +15,7 @@ export function linkSelector(markType, options) {
         active: function active(state) { return markActive(state, markType) },
         enable: function enable(state) { return markActive(state, markType) || !state.selection.empty },
         run: function run(state, dispatch, view) {
-            let attrs = null;
+            let attrs = {};
             let node = null;
 
             // if we've got a link already active, we need to select it
@@ -50,106 +50,119 @@ export function linkSelector(markType, options) {
                 }
             }
 
-
-            let externalLink = '';
-            let itemId = '';
-            let itemText = node ? node.text : '';
-            let itemType = 'page';
-
-            if (attrs && attrs.href) {
-                let parts = null;
-                if (parts = attrs.href.match(/sitetree_link,id=(\d+)/)) {
-                    itemId = parts[1];
-                    itemType = 'page';
-                } else if (parts = attrs.href.match(/file_link,id=(\d+)/)) {
-                    itemId = parts[1];
-                    itemType = 'file';
-                } else {
-                    externalLink = attrs.href;
-                }
-                if (itemId) {
-                    itemText = itemText + ' - ' + itemType + ' #' + itemId + '';
-                }
+            const linkAttrs = {
+                ...attrs,
+                text: node ? node.text : ''
             }
 
-            let formFields = {};
-
-            if (options.internal) {
-                formFields.pageLink = new TreeField({
-                    name: "search-page",
-                    label: "Select a page (or select external link below)",
-                    required: false,
-                    text: itemText,
-                    type: itemType,
-                    value: itemId
-                });
-            }
-
-            formFields = {
-                ...formFields,
-                externalLink: new TextField({
-                    label: "External URL",
-                    required: false,
-                    value: externalLink
-                }),
-                title: new TextField({
-                    label: "Description",
-                    required: false,
-                    value: attrs && attrs.title
-                }),
-                target: new SelectField({
-                    label: "Open target",
-                    required: false,
-                    value: attrs && attrs.target,
-                    options: [
-                        { value: '', label: 'default' },
-                        { value: '_blank', label: '_blank' },
-                        { value: '_self', label: '_self' },
-                        { value: '_parent', label: '_parent' },
-                        { value: '_top', label: '_top' },
-                    ]
-                }),
-            }
-
-            openPrompt({
-                title: "Select link",
-                fields: formFields,
-                callback: function callback(attrs) {
-                    attrs.href = attrs.externalLink;
-                    if (attrs.href.length === 0) {
-                        const pageData = attrs.pageLink;
-                        if (pageData && pageData.id) {
-                            attrs.href = '[' + pageData.shortcode +',id=' + pageData.id + ']';
-                        }
+            linkSelectorDialog(linkAttrs, options, function callback(newAttrs) {
+                newAttrs.href = newAttrs.externalLink;
+                if (newAttrs.href.length === 0) {
+                    const pageData = newAttrs.pageLink;
+                    if (pageData && pageData.id) {
+                        newAttrs.href = '[' + pageData.shortcode + ',id=' + pageData.id + ']';
                     }
-
-                    const from = view.state.selection.$anchor.pos;
-                    const to = view.state.selection.$head.pos;
-
-                    view.dispatch(view.state.tr.addMark(from, to, markType.create(attrs)));
-
-                    // toggleMark(markType, attrs)(view.state, view.dispatch);
-                    // const schema = view.state.schema;
-                    // const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
-                    // view.dispatch(view.state.tr.replaceSelectionWith(node, false));
-                    view.focus();
                 }
+
+                const from = view.state.selection.$anchor.pos;
+                const to = view.state.selection.$head.pos;
+
+                view.dispatch(view.state.tr.addMark(from, to, markType.create(newAttrs)));
+
+                // toggleMark(markType, attrs)(view.state, view.dispatch);
+                // const schema = view.state.schema;
+                // const node = schema.text(attrs.text, [schema.marks.link.create(attrs)])
+                // view.dispatch(view.state.tr.replaceSelectionWith(node, false));
+                view.focus();
             });
 
-            // openPrompt({
-            //     title: "Create a link",
-            //     fields: {
-            //         href: new TextField({
-            //             label: "Link target",
-            //             required: true
-            //         }),
-            //         title: new TextField({ label: "Title" })
-            //     },
-            //     callback: function callback(attrs) {
-            //         prosemirrorCommands.toggleMark(markType, attrs)(view.state, view.dispatch);
-            //         view.focus();
-            //     }
-            // });
+
         }
     })
+}
+
+export function linkSelectorDialog(attrs, options, callback, fieldList) {
+    let externalLink = '';
+    let itemId = '';
+    let itemText = attrs.text;
+    let itemType = 'page';
+
+    if (attrs && attrs.href) {
+        let parts = null;
+        if (parts = attrs.href.match(/sitetree_link,id=(\d+)/)) {
+            itemId = parts[1];
+            itemType = 'page';
+        } else if (parts = attrs.href.match(/file_link,id=(\d+)/)) {
+            itemId = parts[1];
+            itemType = 'file';
+        } else {
+            externalLink = attrs.href;
+        }
+        if (itemId) {
+            itemText = itemText + ' - ' + itemType + ' #' + itemId + '';
+        }
+    }
+
+    let formFields = {};
+
+    if (options.internal) {
+        formFields.pageLink = new TreeField({
+            name: "search-page",
+            label: "Select a page (or select external link below)",
+            required: false,
+            text: itemText,
+            type: itemType,
+            value: itemId
+        });
+    }
+
+    formFields = {
+        ...formFields,
+        externalLink: new TextField({
+            label: "External URL",
+            required: false,
+            value: externalLink
+        }),
+        title: new TextField({
+            label: "Description",
+            required: false,
+            value: attrs && attrs.title
+        }),
+        target: new SelectField({
+            label: "Open target",
+            required: false,
+            value: attrs && attrs.target,
+            options: [
+                { value: '', label: 'default' },
+                { value: '_blank', label: '_blank' },
+                { value: '_self', label: '_self' },
+                { value: '_parent', label: '_parent' },
+                { value: '_top', label: '_top' },
+            ]
+        }),
+    }
+
+    let usedFields = {};
+    if (fieldList) {
+        for (let i = 0; i < fieldList.length; i++) {
+            usedFields[fieldList[i]] = formFields[fieldList[i]];
+        }
+    } else {
+        usedFields = formFields;
+    }
+
+    openPrompt({
+        title: "Select link",
+        fields: usedFields,
+        callback: function (newAttrs) {
+            newAttrs.href = newAttrs.externalLink;
+            if (newAttrs.href.length === 0) {
+                const pageData = newAttrs.pageLink;
+                if (pageData && pageData.id) {
+                    newAttrs.href = '[' + pageData.shortcode + ',id=' + pageData.id + ']';
+                }
+            }
+            callback(newAttrs);
+        }
+    });
 }
