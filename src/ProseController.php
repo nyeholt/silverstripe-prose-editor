@@ -248,10 +248,13 @@ class ProseController extends Controller
             $shortcodeParams = $this->owner->getRequest()->getVar('attrs') ?
                 json_decode($this->owner->getRequest()->getVar('attrs'), true) : [];
             $shortcodeStr = $this->shortcodeStr($item, $shortcodeParams);
-            $str = ShortcodeParser::get_active()->parse($shortcodeStr);
+            // shortcode parser doesn't handle missing width/height attributes well.
+            $str = @ShortcodeParser::get_active()->parse($shortcodeStr);
             if ($str && strlen($str)) {
                 $str = HTML4Value::create($str)->getContent();
                 $str = preg_replace('~>\\s+<~m', '><', $str);
+                // replace style="width: 0px;" as caused by embedShortcodeProvider
+                $str = str_replace('style="width: 0px;"', '', $str);
             }
             return trim($str);
         }

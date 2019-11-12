@@ -14,7 +14,8 @@ use SilverStripe\Core\Convert;
 use Symbiote\ListingPage\ListingTemplate;
 use SilverStripe\View\SSViewer;
 use SilverStripe\CMS\Controllers\ContentController;
-
+use SilverStripe\View\Parsers\HTML4Value;
+use SilverStripe\View\Shortcodes\EmbedShortcodeProvider;
 
 class ProseShortcodes
 {
@@ -26,6 +27,28 @@ class ProseShortcodes
     public static function block_placeholder($arguments, $content = null, $parser = null)
     {
         return '<div style="inline-block; min-width: 100px; min-height: 2rem; padding: 0.5rem; background-color: #ececec;">Placeholder</div>';
+    }
+
+    /**
+     * Handled using the embed shortcode provider, but fixes the response to make for responsive iframes.
+     */
+    public static function embed_shortcode($arguments, $content, $parser, $shortcode, $extra = array())
+    {
+        $response = @call_user_func_array([EmbedShortcodeProvider::class, 'handle_shortcode'], func_get_args());
+        if (strpos($response, '<iframe') && !isset($arguments['width']) || $arguments['width'] == 'auto') {
+            $html = HTML4Value::create($response);
+            $doc = $html->getDocument();
+            $frame = $doc->getElementsByTagName('iframe')[0];
+
+            $frame->setAttribute('style', 'position:absolute; top:0; left: 0; width: 100%; height: 100%');
+            // https://stackoverflow.com/questions/12909787/how-to-get-html-code-of-domelement-node
+            $response = $frame->ownerDocument->saveHTML($frame);
+
+            // wrap in the response wrapper
+            $response = '<div class="prose-responsive-wrapper" style="padding-bottom:56.25%; position:relative; display:block; width: 100%">' . $response . '</div>';
+
+        }
+        return $response;
     }
 
     public static function childlist_handler($arguments, $content = null, $parser = null)
