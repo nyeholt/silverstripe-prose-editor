@@ -188,7 +188,7 @@ class ProseShortcodes
             return "Form $formId not found";
         }
         $controller = ModelAsController::controller_for($form);
-        $controller->init();
+        $controller->doInit();
         $form = $controller->Form();
         return $form ? $form->forTemplate() : 'Form not configured';
     }
