@@ -73,7 +73,7 @@ export class TreeField extends Field {
             el: treeDiv,
             data: [{
                 id: '#',
-                name: this.options.treeLabel ? this.options.treeLabel : 'Expand tree',
+                name: this.options.treeLabel ? this.options.treeLabel : 'Select item',
                 loadOnDemand: true,
                 children: []
             }],
@@ -106,6 +106,12 @@ export class TreeField extends Field {
             },
             rowRenderer: customRowRenderer,
         });
+
+
+        const firstNode = treeDiv.querySelector('div.infinite-tree-item[data-id="#"] a.infinite-tree-toggler');
+        if (firstNode) {
+            firstNode.click();
+        }
 
         tree.on('selectNode', function (node) {
             if (!node) {
