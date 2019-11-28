@@ -94,7 +94,9 @@ export function openPrompt(options, createIn) {
         createIn.prepend(wrapper);
     } else {
         var box = wrapper.getBoundingClientRect();
-        wrapper.style.top = (((window.innerHeight - box.height) / 2) - 100) + "px";
+        var top = (((window.innerHeight - box.height) / 2) - 100);
+        top = top < 0 ? 0 : top;
+        wrapper.style.top = top + "px";
         wrapper.style.left = ((window.innerWidth - box.width) / 2) + "px";
     }
 

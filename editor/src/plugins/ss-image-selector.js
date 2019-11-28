@@ -6,6 +6,7 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import { TextField } from "../fields/TextField";
 import { SelectField } from "../fields/SelectField";
 import { TreeField } from "../fields/TreeField";
+import { ItemFilterField } from "../fields/ItemFilterField";
 
 const imageIcon = {
     width: 20, height: 20,
@@ -47,16 +48,26 @@ export function imageSelector(nodeType) {
 
 export function imageSelectorDialog(attrs, callback, fieldList) {
     const availableFields = {
-        imageId: new TreeField({
-            name: "search-image",
+        imageSel: new ItemFilterField({
+            name: "image_selector",
             linkField: 'image_location',
             titleField: 'image_title',
-            label: "Select an image",
+            label: "Find an image",
             required: false,
             text: '',
-            type: 'file',
+            type: 'image',
             value: null
         }),
+        // imageId: new TreeField({
+        //     name: "search-image",
+        //     linkField: 'image_location',
+        //     titleField: 'image_title',
+        //     label: "Select an image",
+        //     required: false,
+        //     text: '',
+        //     type: 'file',
+        //     value: null
+        // }),
         src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
         title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
         width: new TextField({

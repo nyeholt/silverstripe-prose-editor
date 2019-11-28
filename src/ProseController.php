@@ -26,7 +26,8 @@ class ProseController extends Controller
 {
 
     private static $allowed_actions = array(
-        'childnodes',
+        'childnodes' => 'CMS_ACCESS_CMSMain',
+        'search' => 'CMS_ACCESS_CMSMain',
         'pastefile' => 'CMS_ACCESS_CMSMain',
         'rendershortcode'
     );
@@ -34,7 +35,86 @@ class ProseController extends Controller
     private static $type_map = [
         'page' => SiteTree::class,
         'file' => File::class,
+        'image' => Image::class,
     ];
+
+    public function search($request)
+    {
+        $data = array();
+
+        $searchType = 'page';
+        if ($request->param('ID')) {
+            $searchType = $request->param('ID');
+        }
+
+        $rootObjectType = $this->config()->type_map[$searchType];
+        $term = $request->getVar('term');
+
+        $type = $rootObjectType;
+
+        if (!$type || strlen($term) < 1) {
+            $data = array();
+        } else {
+            $list = DataObject::get($rootObjectType)->filter([
+                'Title:PartialMatch' => $term
+            ])->limit(100);
+
+            $parents = [];
+
+            $hasParents = isset(singleton($rootObjectType)->hasOne()['Parent']);
+
+            if ($hasParents) {
+                $parentIds = $list->column('ParentID');
+                if (count($parentIds)) {
+                    $base = DataObject::getSchema()->baseDataClass($rootObjectType);
+                    $parentObs = $base::get()->filter('ID', $parentIds);
+                    $parents = $parentObs->map()->toArray();
+                }
+            }
+
+
+            $data = array();
+            if ($list) {
+                foreach ($list as $child) {
+                    if ($child->ID < 0) {
+                        continue;
+                    }
+
+                    $nodeData = [
+                        'text' => isset($child->MenuTitle) ? $child->MenuTitle : $child->Title,
+                        'location' => isset($parents[$child->ParentID]) ? $parents[$child->ParentID] : '',
+                        'id' => $child->ID,
+                    ];
+
+                    $thumbs = null;
+                    if ($child->ClassName == Image::class) {
+                        $thumbs = $this->generateThumbnails($child);
+                        $nodeData['icon'] = $thumbs['x128'];
+                        if (!$nodeData['icon']) {
+                            $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                        }
+                    } else if ($child instanceof SiteTree) {
+                        // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
+                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                    } else {
+                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
+                    }
+
+                    $nodeData['data'] = [
+                        'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
+                    ];
+
+
+                    $data[] = $nodeData;
+                }
+            }
+        }
+
+        $this->getResponse()->addHeader('Content-Type', 'application/json');
+        return Convert::raw2json([
+            'results' => $data
+        ]);
+    }
 
     /**
      * Request nodes from the server
@@ -56,7 +136,7 @@ class ProseController extends Controller
             return $this->performSearch($request->getVar('search'), $rootObjectType);
         }
 
-        $parentId = (int)$request->getVar('id');
+        $parentId = (int) $request->getVar('id');
         if (!$parentId || $parentId == '#') {
             $parentId = 0;
         }
@@ -134,10 +214,12 @@ class ProseController extends Controller
         $thumbs = array();
         $by16 = $image->Fit(16, 16);
         $by32 = $image->Fit(32, 32);
+        $by64 = $image->Fit(64, 64);
         $by128 = $image->Fit(128, 128);
 
         $thumbs['x16'] = $by16 ? $by16->Link() : '';
         $thumbs['x32'] = $by32 ? $by32->Link() : '';
+        $thumbs['x64'] = $by64 ? $by64->Link() : '';
         $thumbs['x128'] = $by128 ? $by128->Link() : '';
         return $thumbs;
     }
@@ -170,8 +252,7 @@ class ProseController extends Controller
         }
         $raw = $request->postVar('rawData');
         $filename = $request->postVar('filename') ?
-            $request->postVar('filename') . '.png' :
-            'upload.png';
+            $request->postVar('filename') . '.png' : 'upload.png';
 
         $response = ['success' => true];
         if (substr($raw, 0, strlen('data:image/png;base64,')) === 'data:image/png;base64,') {
@@ -223,7 +304,7 @@ class ProseController extends Controller
         if (preg_match('/\[sitetree_link id=([0-9]+)\]/i', $query, $matches)) {
             $item = DataObject::get_by_id($rootObjectType, $matches[1]);
         } else if (preg_match('/^assets\//', $query)) {
-			// search for the file based on its filepath
+            // search for the file based on its filepath
             $item = DataObject::get_one($rootObjectType, singleton('FEUtils')->dbQuote(array('Filename =' => $query)));
         }
 
@@ -260,7 +341,8 @@ class ProseController extends Controller
         }
     }
 
-    protected function shortcodeStr($shortcode, $params) {
+    protected function shortcodeStr($shortcode, $params)
+    {
         $paramStr = $this->attrListToAttrString($params);
         $shortcode = '[' . $shortcode . ']';
         return strlen($paramStr) ? str_replace(']', ',' . $paramStr . ']', $shortcode) : $shortcode;
@@ -272,7 +354,8 @@ class ProseController extends Controller
      * @param aray $shortcodeParams
      * @return string
      */
-    protected function attrListToAttrString($shortcodeParams) {
+    protected function attrListToAttrString($shortcodeParams)
+    {
         $params = [];
         if (is_array($shortcodeParams)) {
 
@@ -284,5 +367,4 @@ class ProseController extends Controller
         }
         return implode(',', $params);
     }
-
 }

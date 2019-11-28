@@ -1,0 +1,25 @@
+
+.ItemFilterField {
+
+    &__Display {
+        height: 200px;
+
+        overflow: auto;
+    }
+
+    &__Item {
+        height: 160px;
+        width: 140px;
+        display: inline-block;
+        margin: 10px;
+
+        &__Image {
+            width: 100%;
+        }
+
+        &__Caption {
+            height: 20px;
+            font-size: 12px;
+        }
+    }
+}
