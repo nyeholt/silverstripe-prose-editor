@@ -4,8 +4,6 @@ import { MenuItem } from 'prosemirror-menu';
 import { canInsert } from "../proseutil/editor-utils";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { TextField } from "../fields/TextField";
-import { SelectField } from "../fields/SelectField";
-import { TreeField } from "../fields/TreeField";
 import { ItemFilterField } from "../fields/ItemFilterField";
 
 const imageIcon = {

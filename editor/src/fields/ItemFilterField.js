@@ -68,7 +68,7 @@ export class ItemFilterField extends Field {
         const isStage = location.href.indexOf('stage=Stage') > 0;
 
         const lookupItems = debounce((value) => {
-            const reqUrl = `${apiUrl}?term=${value}`;
+            const reqUrl = `${apiUrl}`;
             const queryOpts = {
                 term: value,
                 SecurityID: secId
@@ -83,10 +83,23 @@ export class ItemFilterField extends Field {
                     this.renderItems(displayDiv);
                 }
             });
-        }, 500)
+        }, 500);
+
+        if (this.options.folderId) {
+
+        }
+
         input.addEventListener('keyup', function (e) {
             lookupItems(e.target.value);
         });
+
+
+        document.addEventListener('click', (e) => {
+            console.log(e);
+            if (e.target && e.target.className === 'ItemFilterField__Item__Image') {
+                let imageId = e.target.getAttribute('data-id');
+            }
+        })
 
         return div;
     }
@@ -106,14 +119,16 @@ export class ItemFilterField extends Field {
             let img = tag('img', {
                 'class': 'ItemFilterField__Item__Image',
                 'src': item.icon,
+                'data-id': "" + item.id,
+                'data-url': item.data && item.data.link ? item.data.link : '',
                 'title': escapeHTML(item.location + ' / ' + item.text)
             });
             let cap = tag('span', {
                 'class': 'ItemFilterField__Item__Caption'
             }, escapeHTML(title));
+
             let itemDiv = tag('div', {
-                class: 'ItemFilterField__Item',
-                'data-id': item.id
+                'class': 'ItemFilterField__Item',
             }, img + cap)
 
             return itemDiv;
