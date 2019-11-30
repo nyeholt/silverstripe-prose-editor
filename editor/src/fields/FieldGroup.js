@@ -18,6 +18,7 @@ export class FieldGroup extends Field {
     render() {
         const container = document.createElement('fieldset');
         container.classList.add("fieldgroup");
+        container.classList.add("fieldgroup-" + this.options.name);
 
         this.renderFields(container, this.updateCallback);
 
@@ -41,6 +42,7 @@ export class FieldGroup extends Field {
 
             let formField = field.render();
             formField.setAttribute('data-label', field.options.label || field.options.name);
+            formField.setAttribute('data-name', field.options.name);
 
             domFields.push(formField);
 
@@ -54,7 +56,7 @@ export class FieldGroup extends Field {
             domfield.id = formFieldId;
 
             let fieldWrapper = document.createElement("div");
-            fieldWrapper.className = prefix + '-fieldwrapper';
+            fieldWrapper.className = prefix + '-fieldwrapper fieldgroup-fieldwrapper field-' + domfield.getAttribute('data-name');
             let fieldLabel = document.createElement("label");
             fieldLabel.innerHTML = domfield.getAttribute('data-label');
             fieldLabel.setAttribute('for', formFieldId);
