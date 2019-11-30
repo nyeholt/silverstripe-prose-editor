@@ -3,18 +3,23 @@
 
     &__Display {
         height: 200px;
-
+        display: flex;
+        flex-wrap: wrap;
         overflow: auto;
     }
 
     &__Item {
         height: 160px;
-        width: 140px;
-        display: inline-block;
+        min-width: 140px;
+        display: block;
         margin: 10px;
 
         &__Image {
             width: 100%;
+
+            &--Selected {
+                outline: 2px solid #008;
+            }
         }
 
         &__Caption {

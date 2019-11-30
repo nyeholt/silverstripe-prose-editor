@@ -31,8 +31,8 @@ export function imageSelector(nodeType) {
             }
 
             imageSelectorDialog(attrs, function callback(newAttrs) {
-                if (newAttrs.imageId) {
-                    newAttrs['data-id'] = newAttrs.imageId.id;
+                if (newAttrs.imageSel) {
+                    newAttrs['data-id'] = newAttrs.imageSel.id;
                     // attrs['data-shortcode'] = 'image';
                 }
 
@@ -56,16 +56,6 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
             type: 'image',
             value: null
         }),
-        // imageId: new TreeField({
-        //     name: "search-image",
-        //     linkField: 'image_location',
-        //     titleField: 'image_title',
-        //     label: "Select an image",
-        //     required: false,
-        //     text: '',
-        //     type: 'file',
-        //     value: null
-        // }),
         src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
         title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
         width: new TextField({

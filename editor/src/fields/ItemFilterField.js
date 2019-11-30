@@ -10,10 +10,16 @@ export class ItemFilterField extends Field {
 
     items = [];
 
+    shortcodes = {
+        'image': 'image',
+        'file': 'file_link',
+        'page': 'sitetree_link',
+    }
+
     constructor(options) {
         super(options);
         if (!this.options.type) {
-            this.options.type = 'Page';
+            this.options.type = 'page';
         }
         if (!this.options.url) {
             this.options.url = '__prose';
@@ -22,17 +28,12 @@ export class ItemFilterField extends Field {
 
     read(dom) {
         if (this.hiddenField) {
-            return this.options.type == 'file' ? {
-                type: 'file',
-                shortcode: 'file_link',
+            let shortcode = this.shortcodes[this.options.type] || 'file_link';
+            return {
+                type: this.options.type,
+                shortcode: shortcode,
                 id: this.hiddenField.value
-            } : {
-                    type: 'page',
-                    shortcode: 'sitetree_link',
-                    id: this.hiddenField.value
-                }
-            // '[file_link,id=' + this.hiddenField.value + ']' :
-            // '[sitetree_link,id=' + this.hiddenField.value + ']';
+            }
         }
         return 0;
     }
@@ -67,12 +68,18 @@ export class ItemFilterField extends Field {
         const secId = document.querySelector('input[name=SecurityID]').value;
         const isStage = location.href.indexOf('stage=Stage') > 0;
 
-        const lookupItems = debounce((value) => {
+        const lookupItems = debounce((value, extraOpts) => {
             const reqUrl = `${apiUrl}`;
             const queryOpts = {
                 term: value,
                 SecurityID: secId
             };
+            if (extraOpts) {
+                queryOpts = {
+                    ...queryOpts,
+                    ...extraOpts
+                };
+            }
             if (isStage) {
                 queryOpts.stage = 'Stage';
             }
@@ -85,19 +92,42 @@ export class ItemFilterField extends Field {
             });
         }, 500);
 
-        if (this.options.folderId) {
 
+        if (this.value) {
+            lookupItems('', { initial: this.value });
+        } else if (this.options.folderId) {
+            lookupItems('', { folderId: this.options.folderId });
         }
 
         input.addEventListener('keyup', function (e) {
             lookupItems(e.target.value);
         });
 
-
         document.addEventListener('click', (e) => {
-            console.log(e);
             if (e.target && e.target.className === 'ItemFilterField__Item__Image') {
+                document.querySelectorAll('.ItemFilterField__Item__Image').forEach((elem) => {
+                    elem.classList.remove('ItemFilterField__Item__Image--Selected');
+                })
+
+                e.target.classList.add('ItemFilterField__Item__Image--Selected');
                 let imageId = e.target.getAttribute('data-id');
+                let imageLink = e.target.getAttribute('data-url');
+                let imageTitle = e.target.getAttribute('data-title');
+
+                if (imageId && imageLink) {
+                    this.hiddenField.value = imageId;
+
+                    if (this.options.linkField) {
+                        document.getElementsByName(this.options.linkField).forEach((elem) => {
+                            elem.value = imageLink;
+                        });
+                    }
+                    if (this.options.titleField) {
+                        document.getElementsByName(this.options.titleField).forEach((elem) => {
+                            elem.value = imageTitle;
+                        });
+                    }
+                }
             }
         })
 
@@ -120,6 +150,7 @@ export class ItemFilterField extends Field {
                 'class': 'ItemFilterField__Item__Image',
                 'src': item.icon,
                 'data-id': "" + item.id,
+                'data-title': item.text,
                 'data-url': item.data && item.data.link ? item.data.link : '',
                 'title': escapeHTML(item.location + ' / ' + item.text)
             });

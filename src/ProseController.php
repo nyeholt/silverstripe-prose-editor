@@ -87,6 +87,15 @@ class ProseController extends Controller
                     ];
 
                     $thumbs = null;
+
+                    $nodeData['data'] = [
+                        'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
+                    ];
+
+                    if (!strlen($nodeData['data']['link'])) {
+                        continue;
+                    }
+
                     if ($child->ClassName == Image::class) {
                         $thumbs = $this->generateThumbnails($child);
                         $nodeData['icon'] = $thumbs['x128'];
@@ -100,9 +109,6 @@ class ProseController extends Controller
                         $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
                     }
 
-                    $nodeData['data'] = [
-                        'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
-                    ];
 
 
                     $data[] = $nodeData;
