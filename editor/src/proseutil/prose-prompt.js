@@ -32,8 +32,15 @@ export function openPrompt(options, createIn) {
     var form = wrapper.appendChild(document.createElement("form"));
     if (options.title) { form.appendChild(document.createElement("h5")).textContent = options.title; }
 
-    let rootGroup = new FieldGroup("root", options.fields);
-    rootGroup.renderFields(form, options.update);
+    let rootGroup = new FieldGroup({
+        name: "root",
+        fields: options.fields
+    });
+
+    if (options.update) {
+        rootGroup.updateCallback = options.update;
+    }
+    rootGroup.renderFields(form);
 
     var buttons = form.appendChild(document.createElement("div"));
     buttons.className = prefix + "-buttons";

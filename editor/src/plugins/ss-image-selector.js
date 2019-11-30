@@ -5,6 +5,7 @@ import { canInsert } from "../proseutil/editor-utils";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { TextField } from "../fields/TextField";
 import { ItemFilterField } from "../fields/ItemFilterField";
+import { FieldGroup } from "../fields/FieldGroup";
 
 const imageIcon = {
     width: 20, height: 20,
@@ -56,19 +57,29 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
             type: 'image',
             value: null
         }),
-        src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
-        title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
-        width: new TextField({
-            label: "Width",
-            value: attrs && attrs.width
+        imageInfo: new FieldGroup({
+            name: 'imageInfo',
+            fields: {
+                src: new TextField({ label: "Location", required: true, value: attrs && attrs.src, name: 'image_location' }),
+                title: new TextField({ label: "Title", value: attrs && attrs.title, name: "image_title" }),
+                alt: new TextField({
+                    label: "Description",
+                    value: attrs && attrs.alt
+                })
+            }
         }),
-        height: new TextField({
-            label: "Height",
-            value: attrs && attrs.height
-        }),
-        alt: new TextField({
-            label: "Description",
-            value: attrs && attrs.alt
+        imageProps: new FieldGroup({
+            name: 'imageProps',
+            fields: {
+                width: new TextField({
+                    label: "Width",
+                    value: attrs && attrs.width
+                }),
+                height: new TextField({
+                    label: "Height",
+                    value: attrs && attrs.height
+                })
+            }
         })
     };
 
@@ -80,6 +91,7 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
     } else {
         usedFields = availableFields;
     }
+
 
     openPrompt({
         title: "Select image",

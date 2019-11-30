@@ -1,17 +1,32 @@
+import { Field } from "./Field";
 
-export class FieldGroup {
-
-    name = "fieldgroup"
+export class FieldGroup extends Field {
+    updateCallback = null;
     fields = [];
 
-    constructor(name, fields) {
-        this.name = name;
-        this.fields = fields;
+    /**
+     *
+     * @param {string} name
+     * @param {object} fields
+     *              The list of fields in { name: new Field() } format
+     */
+    constructor(options) {
+        super(options)
+        this.fields = options.fields;
     }
 
-    renderFields(container, updateCallback) {
+    render() {
+        const container = document.createElement('fieldset');
+        container.classList.add("fieldgroup");
+
+        this.renderFields(container, this.updateCallback);
+
+        return container;
+    }
+
+    renderFields(container) {
         let domFields = [];
-        let prefix = this.name;
+        let prefix = this.options.name || '';
 
         for (var name in this.fields) {
             const field = this.fields[name];
@@ -20,36 +35,41 @@ export class FieldGroup {
                 field.options.name = name;
             }
 
+            if (field instanceof FieldGroup) {
+                field.updateCallback = this.updateCallback;
+            }
+
             let formField = field.render();
-            formField.setAttribute('data-label', field.options.label);
+            formField.setAttribute('data-label', field.options.label || field.options.name);
+
             domFields.push(formField);
 
             field.dom = formField;
         }
 
         let fieldNumber = 1;
-        domFields.forEach((field) => {
+        domFields.forEach((domfield) => {
             // wrap in a div with a form label
             let formFieldId = prefix + '-field-' + fieldNumber;
-            field.id = formFieldId;
+            domfield.id = formFieldId;
 
             let fieldWrapper = document.createElement("div");
             fieldWrapper.className = prefix + '-fieldwrapper';
             let fieldLabel = document.createElement("label");
-            fieldLabel.innerHTML = field.getAttribute('data-label');
+            fieldLabel.innerHTML = domfield.getAttribute('data-label');
             fieldLabel.setAttribute('for', formFieldId);
 
             fieldWrapper.appendChild(fieldLabel);
-            fieldWrapper.appendChild(field);
+            fieldWrapper.appendChild(domfield);
 
             container.appendChild(fieldWrapper);
 
-            if (updateCallback) {
-                field.addEventListener('change', function (e) {
-                    updateCallback(field.name, this.fields[field.name].read(field));
+            if (this.updateCallback) {
+                domfield.addEventListener('change', function (e) {
+                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield));
                 });
-                field.addEventListener('keyup', function (e) {
-                    updateCallback(field.name, this.fields[field.name].read(field));
+                domfield.addEventListener('keyup', function (e) {
+                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield));
                 })
             }
 
@@ -61,13 +81,21 @@ export class FieldGroup {
         var result = Object.create(null), i = 0;
         for (var name in this.fields) {
             var field = this.fields[name];
-            var dom = field.dom;
-            var value = field.read(dom), bad = field.validate(value);
-            if (bad) {
-                this.reportInvalid(dom, bad);
-                return null
+            if (field instanceof FieldGroup) {
+                const subfields = field.getValues();
+                result = {
+                    ...result,
+                    ...subfields
+                };
+            } else {
+                var dom = field.dom;
+                var value = field.read(dom), bad = field.validate(value);
+                if (bad) {
+                    this.reportInvalid(dom, bad);
+                    return null
+                }
+                result[name] = field.clean(value);
             }
-            result[name] = field.clean(value);
         }
         return result
     }
