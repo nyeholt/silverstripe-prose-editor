@@ -10,6 +10,8 @@ export class ItemFilterField extends Field {
 
     items = [];
 
+    loading = false;
+
     shortcodes = {
         'image': 'image',
         'file': 'file_link',
@@ -84,11 +86,20 @@ export class ItemFilterField extends Field {
                 queryOpts.stage = 'Stage';
             }
 
+            this.loading = true;
+
+            this.renderItems(displayDiv);
+
             w.url(reqUrl).query(queryOpts).get().json((data) => {
                 if (data && data.results) {
                     this.items = data.results;
-                    this.renderItems(displayDiv);
                 }
+                this.loading = false;
+                this.renderItems(displayDiv);
+            }).catch((e) => {
+                console.log(e);
+                this.loading = false;
+                this.renderItems(displayDiv);
             });
         }, 500);
 
@@ -141,6 +152,11 @@ export class ItemFilterField extends Field {
     renderItems(displayDiv) {
         while (displayDiv.firstChild) displayDiv.removeChild(displayDiv.firstChild)
 
+        if (this.loading) {
+            displayDiv.innerHTML = "<div class='ItemFilterField__Loading'>Loading ... </div>";
+            return;
+        }
+
         const newItems = this.items.map(function (item) {
             let title = item.text;
             if (title.length > 20) {
@@ -165,7 +181,11 @@ export class ItemFilterField extends Field {
             return itemDiv;
         })
 
-        displayDiv.innerHTML = newItems.join('');
+        if (newItems.length > 0) {
+            displayDiv.innerHTML = newItems.join('');
+        } else {
+            displayDiv.innerHTML = "<div class='ItemFilterField__Loading'>No results</div>";
+        }
     }
 }
 

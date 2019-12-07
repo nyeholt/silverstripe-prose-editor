@@ -4,6 +4,7 @@
     &__Display {
         height: 200px;
         display: flex;
+        align-items: center;
         flex-wrap: wrap;
         overflow: auto;
     }
@@ -26,5 +27,14 @@
             height: 20px;
             font-size: 12px;
         }
+    }
+
+    &__Loading {
+        display: block;
+        margin: 0px auto;
+        text-align: center;
+        height: 20%;
+        width: 50%;
+
     }
 }
