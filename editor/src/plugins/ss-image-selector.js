@@ -8,6 +8,7 @@ import { ItemFilterField } from "../fields/ItemFilterField";
 import { FieldGroup } from "../fields/FieldGroup";
 
 import './ImageSelector.scss';
+import { FileUploadField } from "../fields/FileUploadField";
 
 const imageIcon = {
     width: 20, height: 20,
@@ -56,6 +57,13 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
             label: "Find an image",
             required: false,
             text: '',
+            type: 'image',
+            value: null
+        }),
+        fileUpload: new FileUploadField({
+            name: 'imageUpload',
+            label: 'Upload image',
+            required: false,
             type: 'image',
             value: null
         }),
