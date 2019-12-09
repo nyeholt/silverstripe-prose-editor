@@ -29,6 +29,7 @@ class ProseController extends Controller
         'childnodes' => 'CMS_ACCESS_CMSMain',
         'search' => 'CMS_ACCESS_CMSMain',
         'pastefile' => 'CMS_ACCESS_CMSMain',
+        'uploadfile' => 'CMS_ACCESS_CMSMain',
         'rendershortcode'
     );
 
@@ -249,6 +250,20 @@ class ProseController extends Controller
         }
 
         return $result;
+    }
+
+    public function uploadfile(HTTPRequest $request)
+    {
+        if (!SecurityToken::inst()->checkRequest($request)) {
+            return $this->owner->httpError(403);
+        }
+
+        print_r($_FILES);
+
+        $response = ['success' => true];
+
+        $this->owner->getResponse()->addHeader('Content-Type', 'application/json');
+        return json_encode($response, JSON_PRETTY_PRINT);
     }
 
     public function pastefile(HTTPRequest $request)

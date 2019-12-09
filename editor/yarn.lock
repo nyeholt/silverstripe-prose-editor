@@ -2136,6 +2136,16 @@ file-loader@^3.0.1:
     loader-utils "^1.0.2"
     schema-utils "^1.0.0"
 
+filepond-plugin-file-validate-size@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.0.tgz#89e393e4c757c38467b8b2f7049760682d036716"
+  integrity sha512-Czlj4JLrxWRXBm50QO4rzvEVZVGfB4Gst0denBAGTKTZtuj566KB7vwDQy/daZoYtXOQdoVvfJgrJGifZ5n9KA==
+
+filepond@^4.8.0:
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.8.0.tgz#2ea356004c76685e0a4532dceb2df95bb6f70aa5"
+  integrity sha512-2jBZHPzHT3oZKIwgWhO24xyM6Z2zmLx+qqz3J8rrnlY/Lr++kbcLH4QtP0xoj67kdHCz9uBmaKINbX7IX3LhSA==
+
 fill-range@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-4.0.0.tgz#d544811d428f98eb06a63dc402d2403c328c38f7"

@@ -1,5 +1,9 @@
 import { Field } from "./Field";
 
+import * as FilePond from 'filepond';
+
+import './FileUploadField.scss';
+
 export class FileUploadField extends Field {
     constructor(options) {
         super(options);
@@ -13,10 +17,9 @@ export class FileUploadField extends Field {
 
     read(dom) {
         if (this.hiddenField) {
-            let shortcode = this.shortcodes[this.options.type] || 'file_link';
+
             return {
                 type: this.options.type,
-                shortcode: shortcode,
                 id: this.hiddenField.value
             }
         }
@@ -39,10 +42,21 @@ export class FileUploadField extends Field {
         input.name = this.options.name ? this.options.name : this.options.label;
         input.type = "file";
 
+
         inputDiv.appendChild(input);
 
         div.appendChild(inputDiv);
         div.appendChild(this.hiddenField);
+
+
+        FilePond.create(input, {
+            multiple: true,
+            name: this.options.name
+        });
+
+        FilePond.setOptions({
+            server: this.options.uploadurl
+        })
 
         return div;
     }
