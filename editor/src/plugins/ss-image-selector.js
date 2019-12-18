@@ -53,7 +53,7 @@ export function imageSelector(nodeType) {
 export function imageSelectorDialog(attrs, callback, fieldList) {
 
     const secId = document.querySelector('input[name=SecurityID]').value;
-    const uploadUrl = UPLOAD_ENDPOINT + '?SecurityID=' + secId;
+    const uploadUrl = UPLOAD_ENDPOINT + '?SecurityID=' + secId + '&path=' + location.pathname;
 
     const availableFields = {
         imageSel: new ItemFilterField({

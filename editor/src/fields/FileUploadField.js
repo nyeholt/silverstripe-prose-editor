@@ -49,10 +49,16 @@ export class FileUploadField extends Field {
         div.appendChild(this.hiddenField);
 
 
-        FilePond.create(input, {
+        let pond = FilePond.create(input, {
             multiple: true,
             name: this.options.name
         });
+
+        // pond.onaddfile = function (e, file) {
+        //     if (file) {
+        //         file.setMetadata("path", location.pathname);
+        //     }
+        // };
 
         FilePond.setOptions({
             server: this.options.uploadurl

@@ -258,9 +258,32 @@ class ProseController extends Controller
             return $this->owner->httpError(403);
         }
 
-        print_r($_FILES);
 
-        $response = ['success' => true];
+        $response = ['success' => false];
+
+        if (isset($_FILES['imageUpload']) && file_exists($_FILES['imageUpload']['tmp_name'])) {
+            $upload = Upload::create();
+            $upload->setValidator(Injector::inst()->create(ContentUploadValidator::class));
+
+            $image = Image::create();
+            $path = $this->sanitiseFilePath($request->requestVar('path'));
+            if (!$path) {
+                $path = 'Uploads';
+            }
+
+            $upload->loadIntoFile($_FILES['imageUpload'], $image, $path);
+
+            $file = $upload->getFile();
+            if ($file && $file->ID) {
+                $response['success'] = true;
+                $response['url'] = $file->getURL();
+                $response['name'] = $file->Title;
+                $response['folder_id'] = $file->ParentID;
+            }
+            if (file_exists($_FILES['imageUpload']['tmp_name'])) {
+                @unlink($_FILES['imageUpload']['tmp_name']);
+            }
+        }
 
         $this->owner->getResponse()->addHeader('Content-Type', 'application/json');
         return json_encode($response, JSON_PRETTY_PRINT);
@@ -277,7 +300,7 @@ class ProseController extends Controller
 
         $response = ['success' => true];
         if (substr($raw, 0, strlen('data:image/png;base64,')) === 'data:image/png;base64,') {
-            $path = $request->postVar('path');
+            $path = $this->sanitiseFilePath($request->postVar('path'));
             $parts = explode('/', $path);
             if (count($parts) > 5) {
                 $path = 'Uploads';
@@ -310,6 +333,25 @@ class ProseController extends Controller
         }
         $this->owner->getResponse()->addHeader('Content-Type', 'application/json');
         return json_encode($response, JSON_PRETTY_PRINT);
+    }
+
+    protected function sanitiseFilePath($path)
+    {
+        $bits = explode('/', $path);
+
+        $valid = array_map(function ($segment) {
+            if ($segment == '.' || $segment == '..') {
+                return '';
+            }
+
+            return substr($segment, 0, 32);
+        }, $bits);
+
+        $valid = array_filter($valid, function ($part) {
+            return strlen($part) > 0;
+        });
+
+        return implode("/", $valid);
     }
 
 
