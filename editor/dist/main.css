@@ -1090,7 +1090,7 @@ svg {
     border: 1px solid silver;
     position: fixed;
     border-radius: 3px;
-    z-index: 11;
+    z-index: 200;
     box-shadow: -.5px 2px 5px rgba(0, 0, 0, .2);
   }
 
