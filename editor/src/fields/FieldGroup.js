@@ -67,10 +67,10 @@ export class FieldGroup extends Field {
             container.appendChild(fieldWrapper);
 
             if (this.updateCallback) {
-                domfield.addEventListener('change', function (e) {
+                domfield.addEventListener('change', (e) => {
                     this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield));
                 });
-                domfield.addEventListener('keyup', function (e) {
+                domfield.addEventListener('keyup', (e) => {
                     this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield));
                 })
             }
