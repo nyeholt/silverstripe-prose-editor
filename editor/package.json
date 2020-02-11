@@ -40,6 +40,7 @@
     "filepond": "^4.8.0",
     "filepond-plugin-file-validate-size": "^2.2.0",
     "infinite-tree": "^1.16.2",
+    "lodash.mergewith": "4.6.2",
     "prosemirror-markdown": "^1.2.2",
     "prosemirror-tables": "^0.7.10",
     "wretch": "^1.4.2"
