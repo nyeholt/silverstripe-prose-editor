@@ -8,7 +8,12 @@ export function openPrompt(options, createIn) {
     wrapper.className = prefix;
 
     var mouseOutside = function (e) { if (!wrapper.contains(e.target)) { close(); } };
-    setTimeout(function () { return window.addEventListener("mousedown", mouseOutside); }, 50);
+
+    // handle clicks outside the dialog
+    if (!options.forceRemainOpen) {
+        setTimeout(function () { return window.addEventListener("mousedown", mouseOutside); }, 50);
+    }
+
     var close = function () {
         window.removeEventListener("mousedown", mouseOutside);
         if (wrapper.parentNode) { wrapper.parentNode.removeChild(wrapper); }
@@ -44,9 +49,12 @@ export function openPrompt(options, createIn) {
 
     var buttons = form.appendChild(document.createElement("div"));
     buttons.className = prefix + "-buttons";
-    buttons.appendChild(submitButton);
-    buttons.appendChild(document.createTextNode(" "));
-    buttons.appendChild(cancelButton);
+
+    if (!options.hideButtons) {
+        buttons.appendChild(submitButton);
+        buttons.appendChild(document.createTextNode(" "));
+        buttons.appendChild(cancelButton);
+    }
 
     if (createIn) {
         wrapper.style.position = 'static';
