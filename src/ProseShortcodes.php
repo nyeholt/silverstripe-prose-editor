@@ -2,6 +2,7 @@
 
 namespace Symbiote\Prose;
 
+use Embed\Exceptions\InvalidUrlException;
 use \Page;
 
 use SilverStripe\ORM\DataObject;
@@ -34,7 +35,12 @@ class ProseShortcodes
      */
     public static function embed_shortcode($arguments, $content, $parser, $shortcode, $extra = array())
     {
-        $response = @call_user_func_array([EmbedShortcodeProvider::class, 'handle_shortcode'], func_get_args());
+        try {
+            $response = @call_user_func_array([EmbedShortcodeProvider::class, 'handle_shortcode'], func_get_args());
+        } catch (InvalidUrlException $ex) {
+            $response = '<div class="prose-responsive-wrapper" style="padding-bottom:56.25%; position:relative; display:block; width: 100%">Invalid endpoint</div>';
+        }
+
         if (strpos($response, '<iframe') && !isset($arguments['width']) || $arguments['width'] == 'auto') {
             $html = HTML4Value::create($response);
             $doc = $html->getDocument();
