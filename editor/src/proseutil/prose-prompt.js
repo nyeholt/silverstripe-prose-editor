@@ -3,6 +3,8 @@ import { FieldGroup } from "../fields/FieldGroup";
 var prefix = "ProseMirror-prompt";
 
 export function openPrompt(options, createIn) {
+    let form;
+
     var wrapper = document.body.appendChild(document.createElement("div"));
     wrapper.style.width = '65%';
     wrapper.className = prefix;
@@ -34,7 +36,7 @@ export function openPrompt(options, createIn) {
         close();
     });
 
-    var form = wrapper.appendChild(document.createElement("form"));
+    form = wrapper.appendChild(document.createElement("form"));
     if (options.title) { form.appendChild(document.createElement("h5")).textContent = options.title; }
 
     let rootGroup = new FieldGroup({

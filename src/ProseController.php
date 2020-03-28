@@ -56,8 +56,9 @@ class ProseController extends Controller
         if (!$type || strlen($term) < 1) {
             $data = array();
         } else {
-            $list = DataObject::get($rootObjectType)->filter([
-                'Title:PartialMatch' => $term
+            $list = DataObject::get($rootObjectType)->filterAny([
+                'Title:PartialMatch' => $term,
+                'Name:PartialMatch' => $term,
             ])->limit(100);
 
             $parents = [];

@@ -55,24 +55,31 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
     const secId = document.querySelector('input[name=SecurityID]').value;
     const uploadUrl = UPLOAD_ENDPOINT + '?SecurityID=' + secId + '&path=' + location.pathname;
 
+    const filterField = new ItemFilterField({
+        name: "image_selector",
+        linkField: 'image_location',
+        titleField: 'image_title',
+        label: "Find an image",
+        required: false,
+        text: '',
+        type: 'image',
+        value: null
+    })
+
     const availableFields = {
-        imageSel: new ItemFilterField({
-            name: "image_selector",
-            linkField: 'image_location',
-            titleField: 'image_title',
-            label: "Find an image",
-            required: false,
-            text: '',
-            type: 'image',
-            value: null
-        }),
+        imageSel: filterField,
         fileUpload: new FileUploadField({
             name: 'imageUpload',
             label: 'Upload image',
             required: false,
             type: 'image',
             value: null,
-            uploadurl: uploadUrl
+            uploadurl: uploadUrl,
+            onupload: function (file) {
+                if (file && file.filenameWithoutExtension) {
+                    filterField && filterField.lookupItems(file.filenameWithoutExtension);
+                }
+            }
         }),
         imageInfo: new FieldGroup({
             name: 'imageInfo',

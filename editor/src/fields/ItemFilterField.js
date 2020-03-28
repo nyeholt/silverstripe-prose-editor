@@ -12,6 +12,8 @@ export class ItemFilterField extends Field {
 
     loading = false;
 
+    lookupItems = () => {};
+
     shortcodes = {
         'image': 'image',
         'file': 'file_link',
@@ -70,7 +72,7 @@ export class ItemFilterField extends Field {
         const secId = document.querySelector('input[name=SecurityID]').value;
         const isStage = location.href.indexOf('stage=Stage') > 0;
 
-        const lookupItems = debounce((value, extraOpts) => {
+        this.lookupItems = debounce((value, extraOpts) => {
             const reqUrl = `${apiUrl}`;
             const queryOpts = {
                 term: value,
@@ -105,13 +107,13 @@ export class ItemFilterField extends Field {
 
 
         if (this.value) {
-            lookupItems('', { initial: this.value });
+            this.lookupItems('', { initial: this.value });
         } else if (this.options.folderId) {
-            lookupItems('', { folderId: this.options.folderId });
+            this.lookupItems('', { folderId: this.options.folderId });
         }
 
-        input.addEventListener('keyup', function (e) {
-            lookupItems(e.target.value);
+        input.addEventListener('keyup', (e) => {
+            this.lookupItems(e.target.value);
         });
 
         document.addEventListener('click', (e) => {

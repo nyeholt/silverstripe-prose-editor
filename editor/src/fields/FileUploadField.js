@@ -48,7 +48,6 @@ export class FileUploadField extends Field {
         div.appendChild(inputDiv);
         div.appendChild(this.hiddenField);
 
-
         let pond = FilePond.create(input, {
             multiple: true,
             name: this.options.name
@@ -59,6 +58,11 @@ export class FileUploadField extends Field {
         //         file.setMetadata("path", location.pathname);
         //     }
         // };
+        pond.onprocessfile = (err, file) => {
+            if (file && this.options.onupload) {
+                this.options.onupload(file);
+            }
+        };
 
         FilePond.setOptions({
             server: this.options.uploadurl
