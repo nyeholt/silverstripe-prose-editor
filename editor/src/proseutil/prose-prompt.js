@@ -7,6 +7,10 @@ export function openPrompt(options, createIn) {
 
     var wrapper = document.body.appendChild(document.createElement("div"));
     wrapper.style.width = '65%';
+    wrapper.style.maxHeight = '90%';
+    wrapper.style.overflow = 'auto';
+    wrapper.style.paddingBottom  = '20px';
+
     wrapper.className = prefix;
 
     var mouseOutside = function (e) { if (!wrapper.contains(e.target)) { close(); } };
