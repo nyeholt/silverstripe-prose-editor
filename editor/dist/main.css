@@ -66,7 +66,8 @@
   display: block;
   margin: 10px; }
   .ItemFilterField__Item__Image {
-    width: 100%; }
+    max-width: 100%;
+    display: block; }
     .ItemFilterField__Item__Image--Selected {
       outline: 2px solid #008; }
   .ItemFilterField__Item__Caption {
@@ -79,17 +80,6 @@
   text-align: center;
   height: 20%;
   width: 50%; }
-
-.field-imageInfo {
-  display: inline-block;
-  width: 45%;
-  vertical-align: top; }
-
-.field-imageProps {
-  display: inline-block;
-  width: 45%;
-  margin: 0px auto;
-  vertical-align: top; }
 
 /*!
  * FilePond 4.8.0

@@ -40,9 +40,12 @@
     "filepond": "^4.8.0",
     "filepond-plugin-file-validate-size": "^2.2.0",
     "infinite-tree": "^1.16.2",
-    "lodash.mergewith": "4.6.2",
+    "js-yaml": "^3.13.1",
+    "lodash.mergewith": "^4.6.2",
+    "mixin-deep": "^1.3.2",
     "prosemirror-markdown": "^1.2.2",
     "prosemirror-tables": "^0.7.10",
+    "set-value": "^2.0.1",
     "wretch": "^1.4.2"
   }
 }
