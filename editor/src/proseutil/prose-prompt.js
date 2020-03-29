@@ -2,6 +2,22 @@ import { FieldGroup } from "../fields/FieldGroup";
 
 var prefix = "ProseMirror-prompt";
 
+/**
+ * Options is
+ *
+ * {
+ *  update: function() called when a field is updated
+ *  forceRemainOpen: stays open even if clicked outside
+ *  cancel: function() called on cancel
+ *  title: title of the dialog
+ *  fields: object of key :=> field object
+ *  showButtons: boolean whether to show action buttons
+ *  callback: called when the 'ok' button is clicked
+ * }
+ *
+ * @param {object} options
+ * @param {string} createIn
+ */
 export function openPrompt(options, createIn) {
     let form;
 
