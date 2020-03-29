@@ -7,10 +7,12 @@ use SilverStripe\Core\Convert;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\Controller;
 use SilverStripe\Assets\File;
+use SilverStripe\Assets\Folder;
 use SilverStripe\Core\Manifest\ModuleResourceLoader;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Assets\Upload;
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\View\Parsers\ShortcodeParser;
@@ -33,11 +35,33 @@ class ProseController extends Controller
         'rendershortcode'
     );
 
+    /**
+     * The raw types to search and filter by. If this is an array,
+     * we should load objects of index 0, and filter for the classnames in index 1
+     */
     private static $type_map = [
         'page' => SiteTree::class,
         'file' => File::class,
-        'image' => Image::class,
+        'image' => [File::class, [Image::class, Folder::class]]
     ];
+
+    protected function searchBaseType($type)
+    {
+        $rootObjectType = $this->config()->type_map[$type];
+        if (is_array($rootObjectType)) {
+            return $rootObjectType[0];
+        }
+        return $rootObjectType;
+    }
+
+    protected function searchFilterTypes($type)
+    {
+        $rootObjectType = $this->config()->type_map[$type];
+        if (is_array($rootObjectType)) {
+            return $rootObjectType[1];
+        }
+        return null;
+    }
 
     public function search($request)
     {
@@ -48,20 +72,29 @@ class ProseController extends Controller
             $searchType = $request->param('ID');
         }
 
-        $rootObjectType = $this->config()->type_map[$searchType];
+        $rootObjectType = $this->searchBaseType($searchType);
         $term = $request->getVar('term');
 
         $type = $rootObjectType;
 
-        if (!$type || strlen($term) < 1) {
-            $data = array();
-        } else {
-            $list = DataObject::get($rootObjectType)->filterAny([
-                'Title:PartialMatch' => $term,
-                'Name:PartialMatch' => $term,
-            ])->limit(100);
+        $data = array();
+        $parents = [];
+        $list = null;
 
-            $parents = [];
+        if (!$type || strlen($term) < 1) {
+            $list = DataObject::get($rootObjectType);
+        } else {
+            $list = DataObject::get($rootObjectType);
+            if (is_numeric($term)) {
+                $list = $list->filter([
+                    'ParentID' => $term,
+                ]);
+            } else {
+                $list = $list->filterAny([
+                    'Title:PartialMatch' => $term,
+                    'Name:PartialMatch' => $term,
+                ]);
+            }
 
             $hasParents = isset(singleton($rootObjectType)->hasOne()['Parent']);
 
@@ -73,50 +106,21 @@ class ProseController extends Controller
                     $parents = $parentObs->map()->toArray();
                 }
             }
-
-
-            $data = array();
-            if ($list) {
-                foreach ($list as $child) {
-                    if ($child->ID < 0) {
-                        continue;
-                    }
-
-                    $nodeData = [
-                        'text' => isset($child->MenuTitle) ? $child->MenuTitle : $child->Title,
-                        'location' => isset($parents[$child->ParentID]) ? $parents[$child->ParentID] : '',
-                        'id' => $child->ID,
-                    ];
-
-                    $thumbs = null;
-
-                    $nodeData['data'] = [
-                        'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
-                    ];
-
-                    if (!strlen($nodeData['data']['link'])) {
-                        continue;
-                    }
-
-                    if ($child->ClassName == Image::class) {
-                        $thumbs = $this->generateThumbnails($child);
-                        $nodeData['icon'] = $thumbs['x128'];
-                        if (!$nodeData['icon']) {
-                            $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
-                        }
-                    } else if ($child instanceof SiteTree) {
-                        // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
-                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
-                    } else {
-                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
-                    }
-
-
-
-                    $data[] = $nodeData;
-                }
-            }
         }
+
+        $filterTypes = $this->searchFilterTypes($searchType);
+
+        if ($filterTypes) {
+            $allClasses = [];
+            foreach ($filterTypes as $filterType) {
+                $allTypes = ClassInfo::subclassesFor($filterType);
+                $allClasses = array_merge($allClasses, array_values($allTypes));
+            }
+
+            $list = $list->filter(['ClassName' => array_values($allClasses)]);
+        }
+
+        $data = $this->packageDataList($list, $parents);
 
         $this->getResponse()->addHeader('Content-Type', 'application/json');
         return Convert::raw2json([
@@ -124,8 +128,56 @@ class ProseController extends Controller
         ]);
     }
 
+    protected function packageDataList($list, $parents = [])
+    {
+        $data = array();
+        if ($list) {
+            $list = $list->limit(50);
+            foreach ($list as $child) {
+                if ($child->ID < 0) {
+                    continue;
+                }
+
+                $nodeData = [
+                    'text' => isset($child->MenuTitle) ? $child->MenuTitle : $child->Title,
+                    'location' => isset($parents[$child->ParentID]) ? $parents[$child->ParentID] : '',
+                    'id' => $child->ID,
+                ];
+
+                $thumbs = null;
+
+                $nodeData['data'] = [
+                    'link' => $child instanceof File ? $child->getURL() : $child->RelativeLink()
+                ];
+
+                // if (!strlen($nodeData['data']['link'])) {
+                //     continue;
+                // }
+
+                if ($child->ClassName == Image::class) {
+                    $thumbs = $this->generateThumbnails($child);
+                    $nodeData['icon'] = $thumbs['x128'];
+                    if (!$nodeData['icon']) {
+                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                    }
+                } else if ($child instanceof SiteTree) {
+                    // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
+                    $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                } else {
+                    $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
+                }
+
+                $data[] = $nodeData;
+            }
+        }
+
+        return $data;
+    }
+
     /**
      * Request nodes from the server
+     *
+     * TODO - refactor to use the 'packageDataList' method above
      *
      * @param SS_HTTPRequest $request
      * @return JSONString
@@ -139,7 +191,7 @@ class ProseController extends Controller
             $searchType = $request->param('ID');
         }
 
-        $rootObjectType = $this->config()->type_map[$searchType];
+        $rootObjectType = $this->searchBaseType($searchType);
         if ($request->getVar('search')) {
             return $this->performSearch($request->getVar('search'), $rootObjectType);
         }

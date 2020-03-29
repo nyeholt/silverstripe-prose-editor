@@ -7,7 +7,6 @@ import { TextField } from "../fields/TextField";
 import { ItemFilterField } from "../fields/ItemFilterField";
 import { FieldGroup } from "../fields/FieldGroup";
 
-import './ImageSelector.scss';
 import { FileUploadField } from "../fields/FileUploadField";
 
 const imageIcon = {

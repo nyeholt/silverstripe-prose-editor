@@ -10,6 +10,8 @@ export class ItemFilterField extends Field {
 
     items = [];
 
+    lookIn = 0;
+
     loading = false;
 
     lookupItems = () => {};
@@ -140,6 +142,8 @@ export class ItemFilterField extends Field {
                             elem.value = imageTitle;
                         });
                     }
+                } else if (imageId) {
+                    this.lookupItems(imageId);
                 }
             }
         })

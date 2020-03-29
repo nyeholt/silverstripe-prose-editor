@@ -16,7 +16,8 @@
         margin: 10px;
 
         &__Image {
-            width: 100%;
+            max-width: 100%;
+            display: block;
 
             &--Selected {
                 outline: 2px solid #008;
