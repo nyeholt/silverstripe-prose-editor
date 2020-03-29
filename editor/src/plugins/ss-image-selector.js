@@ -123,4 +123,6 @@ export function imageSelectorDialog(attrs, callback, fieldList) {
         fields: usedFields,
         callback: callback
     });
+
+    filterField.lookupItems('');
 }
