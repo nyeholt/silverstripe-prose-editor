@@ -15,6 +15,7 @@ use SilverStripe\Assets\Upload;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Core\Manifest\ResourceURLGenerator;
 use SilverStripe\View\Parsers\ShortcodeParser;
 use SilverStripe\View\Parsers\HTML4Value;
 
@@ -158,13 +159,13 @@ class ProseController extends Controller
                     $thumbs = $this->generateThumbnails($child);
                     $nodeData['icon'] = $thumbs['x128'];
                     if (!$nodeData['icon']) {
-                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                        $nodeData['icon'] = $this->imgUrl('page.png');
                     }
                 } else if ($child instanceof SiteTree) {
                     // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
-                    $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                    $nodeData['icon'] = $this->imgUrl('page.png');
                 } else {
-                    $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
+                    $nodeData['icon'] = $this->imgUrl('folder.png');
                 }
 
                 $data[] = $nodeData;
@@ -243,9 +244,9 @@ class ProseController extends Controller
                         $nodeData['icon'] = $thumbs['x32'];
                     } else if ($child instanceof SiteTree) {
                         // $nodeData['icon'] = ModuleResourceLoader::singleton()->resolvePath('symbiote/silverstripe-frontend-authoring: client/images/page.png');
-                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/page.png';
+                        $nodeData['icon'] = $this->imgUrl('page.png');
                     } else {
-                        $nodeData['icon'] = 'resources/symbiote/silverstripe-prose-editor/client/images/folder.png';
+                        $nodeData['icon'] = $this->imgUrl('folder.png');
                     }
 
                     $nodeData['children'] = $haskids;
@@ -272,9 +273,13 @@ class ProseController extends Controller
     protected function generateThumbnails(Image $image)
     {
         $thumbs = array();
+        /** @var Image */
         $by16 = $image->Fit(16, 16);
+        /** @var Image */
         $by32 = $image->Fit(32, 32);
+        /** @var Image */
         $by64 = $image->Fit(64, 64);
+        /** @var Image */
         $by128 = $image->Fit(128, 128);
 
         $thumbs['x16'] = $by16 ? $by16->Link() : '';
@@ -282,6 +287,20 @@ class ProseController extends Controller
         $thumbs['x64'] = $by64 ? $by64->Link() : '';
         $thumbs['x128'] = $by128 ? $by128->Link() : '';
         return $thumbs;
+    }
+
+    protected function imgUrl($img) {
+        static $generator;
+        static $loader;
+
+        if (!$generator) {
+            $generator = Injector::inst()->get(ResourceURLGenerator::class);
+        }
+        if (!$loader) {
+            $loader = ModuleResourceLoader::singleton();
+        }
+
+        return $generator->urlForResource($loader->resolvePath('symbiote/silverstripe-prose-editor: client/images/' . $img));
     }
 
     /**

@@ -11,7 +11,7 @@ var prefix = "ProseMirror-prompt";
  *  cancel: function() called on cancel
  *  title: title of the dialog
  *  fields: object of key :=> field object
- *  showButtons: boolean whether to show action buttons
+ *  hideButtons: boolean whether to show action buttons
  *  callback: called when the 'ok' button is clicked
  * }
  *
