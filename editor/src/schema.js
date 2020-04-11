@@ -7,6 +7,29 @@ import { InlineShortcodeNodeSpec, BlockShortcodeNodeSpec } from "./plugins/short
 
 let schemaNodes = addListNodes(schema.spec.nodes, "paragraph block*", "block");
 
+// schemaNodes = schemaNodes.update('paragraph', {
+//     group: 'block',
+//     attrs: {
+//         class: {
+//             default: 'pm-align--left'
+//         }
+//     },
+//     content: 'inline*',
+//     toDOM(node) {
+//         return ['p', { class: node.attrs.class }, 0]
+//     },
+//     parseDOM: [{
+//         tag: 'p',
+//         getAttrs: node => {
+//             return {
+//                 textAlign: node.attributes
+//                     ? node.attributes.class
+//                     : node.attrs.class
+//             }
+//         }
+//     }]
+// });
+
 let tNodes = tableNodes({
     tableGroup: "block",
     cellContent: "block+",
