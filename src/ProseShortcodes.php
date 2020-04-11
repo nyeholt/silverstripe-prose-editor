@@ -41,12 +41,14 @@ class ProseShortcodes
             $response = '<div class="prose-responsive-wrapper" style="padding-bottom:56.25%; position:relative; display:block; width: 100%">Invalid endpoint</div>';
         }
 
-        if (strpos($response, '<iframe') && !isset($arguments['width']) || $arguments['width'] == 'auto') {
+        if (strpos($response, '<iframe')) {
             $html = HTML4Value::create($response);
             $doc = $html->getDocument();
             $frame = $doc->getElementsByTagName('iframe')[0];
 
-            $frame->setAttribute('style', 'position:absolute; top:0; left: 0; width: 100%; height: 100%');
+            $width = (!isset($arguments['width']) || $arguments['width'] == 'auto') ? '100%' : $arguments['width'];
+
+            $frame->setAttribute('style', 'position:absolute; top:0; left: 0; width: ' . $width . '; height: 100%');
             // https://stackoverflow.com/questions/12909787/how-to-get-html-code-of-domelement-node
             $response = $frame->ownerDocument->saveHTML($frame);
 
