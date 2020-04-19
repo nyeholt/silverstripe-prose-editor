@@ -241,6 +241,7 @@ export function renderProseShortcode(shortcode, attrs, shortcodeUrl) {
     shortcodeUrl = shortcodeUrl || '/__prose/rendershortcode';
     return w.url(shortcodeUrl).query({
         shortcode: shortcode,
-        attrs: JSON.stringify(attrs)
+        attrs: JSON.stringify(attrs),
+        stage: 'Stage',
     }).get();
 }
