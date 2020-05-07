@@ -5,6 +5,7 @@ export class SelectField extends Field {
         var this$1 = this;
 
         var select = document.createElement("select");
+        select.name = this.options.name ? this.options.name : this.options.label;
         this.options.options.forEach(function (o) {
             var opt = select.appendChild(document.createElement("option"));
             opt.value = o.value;
