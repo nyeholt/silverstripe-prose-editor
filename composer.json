@@ -1,6 +1,6 @@
 {
     "name": "symbiote/silverstripe-prose-editor",
-    "description": "A wysiwyg editor based on prose editor",
+    "description": "A wysiwyg editor based on prose mirror",
     "type": "silverstripe-vendormodule",
     "keywords": [
         "silverstripe",
