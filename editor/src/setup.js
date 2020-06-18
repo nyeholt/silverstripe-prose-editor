@@ -662,6 +662,7 @@ export function setupEditor(editorNode, valueNode, storageNode) {
         state: EditorState.create({
             doc: domToDoc(valueNode),
             plugins: setupPlugins({
+                floatingMenu: config.floatingMenu,
                 schema: schema,
                 menuBar: true,
                 settings: config || {menu: {}, linkSelector: {}},
