@@ -333,7 +333,7 @@
       overflow-y: auto;
   }
 
-  .ProseMirror p:first-child,
+  /* .ProseMirror p:first-child, */
   .ProseMirror h1:first-child,
   .ProseMirror h2:first-child,
   .ProseMirror h3:first-child,
