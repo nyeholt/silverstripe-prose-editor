@@ -113,10 +113,10 @@ class TableTools {
         // let start = view.coordsAtPos(lastPos), end = view.coordsAtPos(lastPos)
         let start = view.coordsAtPos(from), end = view.coordsAtPos(to)
         // The box in which the tooltip is positioned, to use as base
-        let box = this.tableTools.offsetParent.getBoundingClientRect()
+        let box = this.tableTools.offsetParent.getBoundingClientRect();
         // Find a center-ish x position from the selection endpoints (when
         // crossing lines, end may be more to the left)
-        this.tableTools.style.left = (start.left - 100) + "px"
+        this.tableTools.style.left = (start.left - box.left ) + "px"
         this.tableTools.style.bottom = (box.bottom - start.top + 20) + "px"
 
         this.renderedMenu && this.renderedMenu.update(state);
