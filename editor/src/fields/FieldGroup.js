@@ -3,6 +3,8 @@ import { Field } from "./Field";
 export class FieldGroup extends Field {
     updateCallback = null;
     fields = [];
+    domFields = [];
+    fieldHolders = [];
 
     /**
      *
@@ -26,7 +28,6 @@ export class FieldGroup extends Field {
     }
 
     renderFields(container) {
-        let domFields = [];
         let prefix = this.options.name || '';
 
         for (var name in this.fields) {
@@ -44,13 +45,13 @@ export class FieldGroup extends Field {
             formField.setAttribute('data-label', field.options.label || field.options.name);
             formField.setAttribute('data-name', field.options.name);
 
-            domFields.push(formField);
+            this.domFields.push(formField);
 
             field.dom = formField;
         }
 
         let fieldNumber = 1;
-        domFields.forEach((domfield) => {
+        this.domFields.forEach((domfield) => {
             // wrap in a div with a form label
             let formFieldId = prefix + '-field-' + fieldNumber;
             domfield.id = formFieldId;
@@ -66,17 +67,25 @@ export class FieldGroup extends Field {
 
             container.appendChild(fieldWrapper);
 
+            this.fieldHolders.push(fieldWrapper);
+
             if (this.updateCallback) {
                 domfield.addEventListener('change', (e) => {
-                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield));
+                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield), container);
                 });
                 domfield.addEventListener('keyup', (e) => {
-                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield));
+                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield), container);
                 })
             }
 
             fieldNumber++;
         });
+    }
+
+    removeFields() {
+        this.fieldHolders.forEach((domfield) => {
+            domfield.remove();
+        })
     }
 
     getValues() {
