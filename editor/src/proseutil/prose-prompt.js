@@ -123,5 +123,7 @@ export function openPrompt(options, createIn) {
 
     var input = form.elements[0];
     if (input) { input.focus(); }
+
+    return form;
 }
 
