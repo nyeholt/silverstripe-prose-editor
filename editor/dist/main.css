@@ -1160,7 +1160,7 @@ svg {
       overflow-y: auto;
   }
 
-  .ProseMirror p:first-child,
+  /* .ProseMirror p:first-child, */
   .ProseMirror h1:first-child,
   .ProseMirror h2:first-child,
   .ProseMirror h3:first-child,
@@ -1171,8 +1171,6 @@ svg {
   }
 
   .ProseMirror {
-    padding: 4px 8px 4px 14px;
-    line-height: 1.2;
     outline: none;
   }
 
