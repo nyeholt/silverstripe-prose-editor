@@ -99,7 +99,10 @@ export class TreeField extends Field {
                             icon: item.icon || null,
                             data: item.data
                         };
+                    }).filter((item) => {
+                        return item.name && item.name.length > 0;
                     });
+
                     next(null, nodes, function () {
                     });
                 })

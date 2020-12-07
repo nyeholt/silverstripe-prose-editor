@@ -17,6 +17,14 @@
     position: relative;
   }
 
+  .ProseMirror-prompt {
+      .fieldgroup-fieldwrapper {
+          label {
+            font-size: 12px;
+          }
+      }
+  }
+
   .ProseMirror-hideselection *::selection { background: transparent; }
   .ProseMirror-hideselection *::-moz-selection { background: transparent; }
   .ProseMirror-hideselection { caret-color: transparent; }
@@ -328,10 +336,6 @@
     margin-bottom: 23px;
   }
 
-  .ProseMirror-prompt-fieldwrapper .infinite-tree-scroll {
-      max-height: 200px;
-      overflow-y: auto;
-  }
 
   /* .ProseMirror p:first-child, */
   .ProseMirror h1:first-child,
