@@ -68,6 +68,8 @@ export class ItemFilterField extends Field {
         div.appendChild(displayDiv);
         div.appendChild(this.hiddenField);
 
+        this.cleanupElems.push(div, inputDiv, displayDiv, this.hiddenField);
+
         const w = wretch();
         const treeType = this.options.type || 'page';
         const apiUrl = this.options.url + '/search/' + treeType;
@@ -118,9 +120,9 @@ export class ItemFilterField extends Field {
             this.lookupItems(e.target.value);
         });
 
-        document.addEventListener('click', (e) => {
+        displayDiv.addEventListener('click', (e) => {
             if (e.target && e.target.className === 'ItemFilterField__Item__Image') {
-                document.querySelectorAll('.ItemFilterField__Item__Image').forEach((elem) => {
+                displayDiv.querySelectorAll('.ItemFilterField__Item__Image').forEach((elem) => {
                     elem.classList.remove('ItemFilterField__Item__Image--Selected');
                 })
 

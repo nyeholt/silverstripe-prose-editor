@@ -19,6 +19,8 @@ var prefix = "ProseMirror-prompt";
  * @param {string} createIn
  */
 export function openPrompt(options, createIn) {
+    let prompt = {};
+
     let form;
 
     var wrapper = document.body.appendChild(document.createElement("div"));
@@ -29,6 +31,7 @@ export function openPrompt(options, createIn) {
 
     wrapper.className = prefix;
 
+
     var mouseOutside = function (e) { if (!wrapper.contains(e.target)) { close(); } };
 
     // handle clicks outside the dialog
@@ -36,9 +39,12 @@ export function openPrompt(options, createIn) {
         setTimeout(function () { return window.addEventListener("mousedown", mouseOutside); }, 50);
     }
 
-    var close = function () {
+    prompt.close = function () {
         window.removeEventListener("mousedown", mouseOutside);
         if (wrapper.parentNode) { wrapper.parentNode.removeChild(wrapper); }
+
+        // cleanup form fields
+        this.fieldGroup.cleanup();
     };
 
     var submitButton = document.createElement("button");
@@ -53,7 +59,7 @@ export function openPrompt(options, createIn) {
         if (options.cancel) {
             options.cancel();
         }
-        close();
+        prompt.close();
     });
 
     form = wrapper.appendChild(document.createElement("form"));
@@ -121,9 +127,13 @@ export function openPrompt(options, createIn) {
         }
     });
 
+    prompt.wrapper = wrapper;
+    prompt.form = form;
+    prompt.fieldGroup = rootGroup;
+
     var input = form.elements[0];
     if (input) { input.focus(); }
 
-    return form;
+    return prompt;
 }
 

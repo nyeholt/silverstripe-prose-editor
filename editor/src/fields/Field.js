@@ -1,6 +1,8 @@
 
 export class Field {
 
+    cleanupElems = [];
+
     constructor(options) {
         this.options = options;
     }
@@ -18,5 +20,15 @@ export class Field {
 
     clean(value) {
         return this.options.clean ? this.options.clean(value) : value
+    }
+
+    cleanup() {
+        if (this.cleanupElems && this.cleanupElems.length > 0) {
+            this.cleanupElems.forEach((elem) => {
+                if (elem) {
+                    elem.remove();
+                }
+            })
+        }
     }
 }

@@ -61,18 +61,23 @@
   overflow: auto; }
 
 .ItemFilterField__Item {
-  height: 160px;
-  min-width: 140px;
+  height: 120px;
+  max-width: 100px;
   display: block;
-  margin: 10px; }
+  margin: 10px;
+  position: relative; }
   .ItemFilterField__Item__Image {
     max-width: 100%;
-    display: block; }
+    display: block;
+    min-width: 100px;
+    cursor: pointer; }
     .ItemFilterField__Item__Image--Selected {
       outline: 2px solid #008; }
   .ItemFilterField__Item__Caption {
     height: 20px;
-    font-size: 12px; }
+    font-size: 12px;
+    position: absolute;
+    bottom: 0px; }
 
 .ItemFilterField__Loading {
   display: block;

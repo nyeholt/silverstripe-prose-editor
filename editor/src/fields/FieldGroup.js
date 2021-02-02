@@ -27,6 +27,14 @@ export class FieldGroup extends Field {
         return container;
     }
 
+    cleanup() {
+        for (var name in this.fields) {
+            const field = this.fields[name];
+            field.cleanup();
+        }
+        this.removeFields();
+    }
+
     renderFields(container) {
         let prefix = this.options.name || '';
 

@@ -121,7 +121,17 @@ class ProseController extends Controller
             $list = $list->filter(['ClassName' => array_values($allClasses)]);
         }
 
-        $data = $this->packageDataList($list, $parents);
+        // provides a way to browse _upwards_. Note that this doesn't
+        // handle the root folder at all yet - that'd need further
+        // thought about how tree browsing should work vs search
+        $pid = 0;
+        if (is_numeric($term)) {
+            $item = $type::get()->byID($term);
+            if ($item) {
+                $pid = $item->ParentID;
+            }
+        }
+        $data = $this->packageDataList($list, $parents, $pid);
 
         $this->getResponse()->addHeader('Content-Type', 'application/json');
         return Convert::raw2json([
@@ -129,9 +139,17 @@ class ProseController extends Controller
         ]);
     }
 
-    protected function packageDataList($list, $parents = [])
+    protected function packageDataList($list, $parents = [], $parentId = false)
     {
         $data = array();
+        if ($parentId) {
+            $data[] = [
+                'text' => 'Parent',
+                'location' => '',
+                'id' => $parentId,
+                'icon' => $this->imgUrl('folder.png'),
+            ];
+        }
         if ($list) {
             $list = $list->limit(50);
             foreach ($list as $child) {

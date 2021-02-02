@@ -10,14 +10,20 @@
     }
 
     &__Item {
-        height: 160px;
-        min-width: 140px;
+        height: 120px;
+        max-width: 100px;
         display: block;
         margin: 10px;
+        position: relative;
+        // display: flex;
+        // align-items: center;
+
 
         &__Image {
             max-width: 100%;
             display: block;
+            min-width: 100px;
+            cursor: pointer;
 
             &--Selected {
                 outline: 2px solid #008;
@@ -27,6 +33,8 @@
         &__Caption {
             height: 20px;
             font-size: 12px;
+            position:absolute;
+            bottom: 0px;
         }
     }
 
