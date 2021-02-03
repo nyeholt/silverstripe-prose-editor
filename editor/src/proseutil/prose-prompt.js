@@ -100,7 +100,7 @@ export function openPrompt(options, createIn) {
     var submit = function () {
         var params = rootGroup.getValues();
         if (params) {
-            close();
+            prompt.close();
             options.callback(params);
         }
     };

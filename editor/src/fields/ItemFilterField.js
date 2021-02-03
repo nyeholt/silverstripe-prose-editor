@@ -116,7 +116,18 @@ export class ItemFilterField extends Field {
             this.lookupItems('', { folderId: this.options.folderId });
         }
 
+        input.addEventListener('keydown', (e) => {
+            const key = e.keyCode || e.key;
+            if (key == 13 /* enter */) {
+                return e.preventDefault();
+            }
+        })
+
         input.addEventListener('keyup', (e) => {
+            const key = e.keyCode || e.key;
+            if (key == 13 /* enter */) {
+                return e.preventDefault();
+            }
             this.lookupItems(e.target.value);
         });
 
