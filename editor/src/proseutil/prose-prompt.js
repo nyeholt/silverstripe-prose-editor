@@ -31,8 +31,7 @@ export function openPrompt(options, createIn) {
 
     wrapper.className = prefix;
 
-
-    var mouseOutside = function (e) { if (!wrapper.contains(e.target)) { close(); } };
+    var mouseOutside = function (e) { if (!wrapper.contains(e.target)) { prompt.close(); } };
 
     // handle clicks outside the dialog
     if (!options.forceRemainOpen) {
