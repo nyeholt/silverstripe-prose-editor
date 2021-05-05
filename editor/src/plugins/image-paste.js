@@ -96,7 +96,7 @@ export const imagePaste = new Plugin({
 
                                         view.dispatch(
                                             view.state.tr
-                                            .replaceWith(pos, pos, imageNodeType.create({ src: response.url }))
+                                            .replaceWith(pos, pos, imageNodeType.create({ src: response.url, 'data-imageid': response.id }))
                                             .setMeta(imagePaste, { remove: { id } })
                                         );
                                     }

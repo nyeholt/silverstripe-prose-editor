@@ -16,6 +16,7 @@ use SilverStripe\Core\ClassInfo;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\Manifest\ResourceURLGenerator;
+use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Parsers\ShortcodeParser;
 use SilverStripe\View\Parsers\HTML4Value;
 
@@ -348,6 +349,7 @@ class ProseController extends Controller
             return $this->owner->httpError(403);
         }
 
+        Versioned::set_stage(Versioned::DRAFT);
 
         $response = ['success' => false];
 
@@ -416,6 +418,7 @@ class ProseController extends Controller
             if ($file && $file->ID) {
                 $response['url'] = $file->getURL();
                 $response['name'] = $file->Title;
+                $response['id'] = $file->ID;
             }
             if (file_exists($tempFilePath)) {
                 @unlink($tempFile);
