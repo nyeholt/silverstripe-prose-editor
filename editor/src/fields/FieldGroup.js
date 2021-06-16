@@ -64,6 +64,8 @@ export class FieldGroup extends Field {
             let formFieldId = prefix + '-field-' + fieldNumber;
             domfield.id = formFieldId;
 
+            let formName = domfield.name ? domfield.name : domfield.getAttribute('data-name');
+
             let fieldWrapper = document.createElement("div");
             fieldWrapper.className = prefix + '-fieldwrapper fieldgroup-fieldwrapper field-' + domfield.getAttribute('data-name');
             let fieldLabel = document.createElement("label");
@@ -79,10 +81,10 @@ export class FieldGroup extends Field {
 
             if (this.updateCallback) {
                 domfield.addEventListener('change', (e) => {
-                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield), container);
+                    this.updateCallback(formName, this.fields[formName].read(domfield), container);
                 });
                 domfield.addEventListener('keyup', (e) => {
-                    this.updateCallback(domfield.name, this.fields[domfield.name].read(domfield), container);
+                    this.updateCallback(formName, this.fields[formName].read(domfield), container);
                 })
             }
 
