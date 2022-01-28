@@ -45,8 +45,8 @@ export class ItemFilterField extends Field {
     }
 
     render() {
-        this.hiddenField = document.createElement('hidden');
-        this.hiddenField.type = "text";
+        this.hiddenField = document.createElement('input');
+        this.hiddenField.type = "hidden";
         this.hiddenField.value = this.options.value || "";
 
         let div = document.createElement('div');
